@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 25.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1024 1024" style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
+<style type="text/css">
+	.st0{clip-path:url(#SVGID_2_);}
+	.st1{fill:#FFFFFF;stroke:#FFFFFF;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g>
+	<defs>
+		<rect id="SVGID_1_" width="1024" height="1024"/>
+	</defs>
+	<clipPath id="SVGID_2_">
+		<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+	</clipPath>
+	<g class="st0">
+		<path class="st1" d="M348.89,591.59c0,17.65-14.31,31.96-31.96,31.96c-17.66,0-31.96-14.31-31.96-31.96V436.43L165.22,367.3
+			v374.37l324.21,187.19V554.48l-140.54-81.14V591.59z"/>
+		<polygon class="st1" points="553.36,928.85 877.58,741.67 877.58,367.3 553.36,554.48 		"/>
+		<polygon class="st1" points="634.42,190 521.4,124.75 197.18,311.94 310.21,377.19 		"/>
+		<polygon class="st1" points="845.62,311.94 698.35,226.91 374.14,414.1 521.4,499.12 		"/>
+	</g>
+</g>
+</svg>
