@@ -13,6 +13,7 @@ SOURCES += \
     filetransfersession.cpp \
     main.cpp \
     mainui.cpp \
+    navigater.cpp \
     selectfilesdialog.cpp \
     sendtodialog.cpp \
     settings.cpp \
@@ -29,6 +30,7 @@ HEADERS += \
     filetransferserver.h \
     filetransfersession.h \
     mainui.h \
+    navigater.h \
     selectfilesdialog.h \
     sendtodialog.h \
     settings.h \

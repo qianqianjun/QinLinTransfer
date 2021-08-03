@@ -2,7 +2,7 @@
 #define MAINUI_H
 
 #include <QMainWindow>
-
+#include <navigater.h>
 namespace Ui {
 class MainUI;
 }
@@ -16,6 +16,7 @@ public:
     ~MainUI();
 
 private:
+    Navigater* navigater;
     Ui::MainUI *ui;
 };
 
