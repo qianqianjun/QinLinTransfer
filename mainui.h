@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <navigater.h>
+#include <QLayout>
+#include <QPushButton>
+#include <onlinedeviceitem.h>
+#include <QSpacerItem>
 namespace Ui {
 class MainUI;
 }
@@ -18,6 +22,9 @@ public:
 private:
     Navigater* navigater;
     Ui::MainUI *ui;
+    DeviceManager* manager;
+    void initialLeftMenu();
+    void initialOnlinePage(const QVector<DeviceInfo>& devices);
 };
 
 #endif // MAINUI_H

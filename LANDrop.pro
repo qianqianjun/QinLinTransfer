@@ -14,7 +14,9 @@ SOURCES += \
     main.cpp \
     mainui.cpp \
     navigater.cpp \
+    onlinedeviceitem.cpp \
     selectfilesdialog.cpp \
+    sendfilewindow.cpp \
     sendtodialog.cpp \
     settings.cpp \
     settingsdialog.cpp \
@@ -31,7 +33,9 @@ HEADERS += \
     filetransfersession.h \
     mainui.h \
     navigater.h \
+    onlinedeviceitem.h \
     selectfilesdialog.h \
+    sendfilewindow.h \
     sendtodialog.h \
     settings.h \
     settingsdialog.h \
@@ -42,6 +46,7 @@ FORMS += \
     filetransferdialog.ui \
     mainui.ui \
     selectfilesdialog.ui \
+    sendfilewindow.ui \
     sendtodialog.ui \
     settingsdialog.ui
 
