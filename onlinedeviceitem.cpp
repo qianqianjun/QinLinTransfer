@@ -3,7 +3,6 @@
  * @date 2021.07
 */
 #include "onlinedeviceitem.h"
-#include <QDebug>
 // OnlineDeviceItem 相关的函数实现
 OnlineDeviceItem::OnlineDeviceItem(DeviceInfo info,QWidget *parent) : QWidget(parent),info(info)
 {
@@ -19,9 +18,18 @@ OnlineDeviceItem::OnlineDeviceItem(DeviceInfo info,QWidget *parent) : QWidget(pa
     layout->addWidget(this->port);
     layout->addWidget(this->btn);
     this->setLayout(layout);
+    connect(this->btn,&QPushButton::clicked,this,&OnlineDeviceItem::openTransferWindow);
 }
 DeviceInfo OnlineDeviceItem::getDeviceInfo(){
     return this->info;
+}
+void OnlineDeviceItem::openTransferWindow(){
+    QVector<QString> names;
+    QVector<QString> ips;
+    names.push_back(info.name);
+    ips.push_back(info.ip);
+    SendFileWindow* sendFileWindow=new SendFileWindow(names,ips,nullptr);
+    sendFileWindow->show();
 }
 
 //  Title 相关的函数实现
@@ -34,52 +42,48 @@ Title::Title(QVector<QString> heads,QWidget* parent):QWidget(parent),titles(head
     for(int i=0;i<labels.size();i++) layout->addWidget(labels[i]);
     this->setLayout(layout);
 }
+Title::~Title(){
+    qDebug()<<"release title";
+}
 
 // DeviceManager 相关的函数实现
 DeviceManager::DeviceManager(QToolButton* multi_transfer_btn,
                              QToolButton* select_all_btn,
+                             QWidget*& topWidget,
                              QObject* parent):QObject(parent),
-    multiTransferBtn(multi_transfer_btn),selectAllBtn(select_all_btn){
+    multiTransferBtn(multi_transfer_btn),
+    selectAllBtn(select_all_btn),topWidget(topWidget){
     connect(this->selectAllBtn,&QToolButton::clicked,this,&DeviceManager::selectAllDevices);
-    connect(this->multiTransferBtn,&QToolButton::clicked,[=](){
-        openTransferWindow(this->selectedDevices);
-    });
+    connect(this->multiTransferBtn,&QToolButton::clicked,this,&DeviceManager::multiTransfer);
 }
 
-void DeviceManager::addOnlineDeviceItem(OnlineDeviceItem*& item){
-    this->onlineDeviceItems.push_back(item);
+void DeviceManager::startAsking(DiscoveryService*& discoveryService){
+    connect(&discoveryTimer, &QTimer::timeout, discoveryService, &DiscoveryService::refresh);
+    discoveryTimer.start(2000);
+    discoveryService->refresh();
+}
+
+void DeviceManager::freeOldWidget(){
+    delete topWidget->layout();
+    delete title;
+    for(int i=0;i<onlineDeviceItems.size();i++){
+        delete onlineDeviceItems[i];
+    }
+    onlineDeviceItems.clear();
 }
 
 void DeviceManager::addConnectionAction(){
     for(int i=0;i<this->onlineDeviceItems.size();i++){
-        connect(this->onlineDeviceItems[i]->checkbox,&QCheckBox::stateChanged,[=](int state){
-            if(state==0){
-                removeTransferDevice(this->onlineDeviceItems[i]->getDeviceInfo());
-            }else{
-                addTransferDevice(this->onlineDeviceItems[i]->getDeviceInfo());
-            }
-//            qDebug()<<"the value in the selected devices";
-//            for(int i=0;i<this->selectedDevices.size();i++){
-//                qDebug()<<this->selectedDevices[i].name;
-//            }
-        });
-
-        connect(this->onlineDeviceItems[i]->btn,&QPushButton::clicked,[=](){
-            QVector<DeviceInfo> devices;
-            devices.push_back(this->onlineDeviceItems[i]->getDeviceInfo());
-            openTransferWindow(devices);
-        });
+        connect(this->onlineDeviceItems[i]->checkbox,
+                &QCheckBox::stateChanged,this,&DeviceManager::updateSelectedDevice);
     }
 }
 
-void DeviceManager::addTransferDevice(const DeviceInfo& info){
-    this->selectedDevices.push_back(info);
-}
-void DeviceManager::removeTransferDevice(const DeviceInfo& info){
-    for(int i=0;i<this->selectedDevices.size();i++){
-        if(this->selectedDevices[i].ip==info.ip && this->selectedDevices[i].port==info.port){
-            this->selectedDevices.remove(i);
-            return;
+void DeviceManager::updateSelectedDevice(){
+    this->selectedDevices.clear();
+    for(int i=0;i<onlineDeviceItems.size();i++){
+        if(onlineDeviceItems[i]->checkbox->checkState()==Qt::Checked){
+            this->selectedDevices.push_back(onlineDeviceItems[i]->getDeviceInfo());
         }
     }
 }
@@ -96,6 +100,15 @@ void DeviceManager::selectAllDevices(){
     }
 }
 
+void DeviceManager::multiTransfer(){
+    if(this->selectedDevices.size()>0){
+        openTransferWindow(this->selectedDevices);
+    }else{
+        QMessageBox::critical(nullptr, QApplication::applicationName(),
+                             QString("请先选择要传输的设备！"));
+    }
+}
+
 void DeviceManager::openTransferWindow(QVector<DeviceInfo> devices){
     QVector<QString> names;
     QVector<QString> ips;
@@ -107,8 +120,62 @@ void DeviceManager::openTransferWindow(QVector<DeviceInfo> devices){
     sendFileWindow->show();
 }
 
+void DeviceManager::updateDeviceList(const QString &deviceName, const QHostAddress &addr, quint16 port){
+    qDebug()<<deviceName;
+    qDebug()<<onlineInfos.size();
+    if(port==0){
+        for(int i=0;i<onlineInfos.size();i++){
+            if(QHostAddress(onlineInfos[i].ip).isEqual(addr)){
+                onlineInfos.remove(i);
+                break;
+            }
+        }
+        //检查一下是否刚好在选中的列表中，如果有的话，马上删了。
+        for(int i=0;i<selectedDevices.size();i++){
+            if(QHostAddress(selectedDevices[i].ip).isEqual(addr)){
+                selectedDevices.remove(i);
+            }
+        }
+    }else{
+        for(int i=0;i<onlineInfos.size();i++){
+            if(QHostAddress(onlineInfos[i].ip).isEqual(addr)){
+                onlineInfos[i].name=deviceName;
+                onlineInfos[i].port=QString::number(port);
+                break;
+            }
+        }
+        onlineInfos.push_back(DeviceInfo(deviceName,))
+    }
+    // 下面是更新UI的操作
+    freeOldWidget();
+    renderOnlinePage();
+}
 
+void DeviceManager::renderOnlinePage(){
+    QVBoxLayout* layout=new QVBoxLayout(topWidget);
+    QVector<QString> heads;
+    heads<<"选择"<<"设备名称"<<"Ip地址"<<"端口号"<<"操作";
+    title=new Title(heads,topWidget);
+    layout->addWidget(title);
+    // 下面是添加设备的功能
+    for(int i=0;i<onlineInfos.size();i++){
+        OnlineDeviceItem* item=new OnlineDeviceItem(onlineInfos[i],topWidget);
+        onlineDeviceItems.push_back(item);
+        layout->addWidget(item);
+    }
+    addConnectionAction();
+    layout->addStretch();
+    topWidget->setLayout(layout);
 
+    for(int i=0;i<this->onlineDeviceItems.size();i++){
+        for(int j=0;j<this->selectedDevices.size();j++){
+            if(this->onlineDeviceItems[i]->getDeviceInfo().ip==this->selectedDevices[j].ip){
+                this->onlineDeviceItems[i]->checkbox->setCheckState(Qt::Checked);
+                break;
+            }
+        }
+    }
+}
 
 
 

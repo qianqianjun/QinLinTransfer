@@ -21,13 +21,18 @@ void DiscoveryService::start(quint16 serverPort)
                              .arg(DISCOVERY_PORT));
     }
     foreach (const QHostAddress &addr, broadcastAddresses()) {
-        sendInfo(addr, DISCOVERY_PORT);
+        //sendInfo(addr, DISCOVERY_PORT);
+        QJsonObject obj;
+        obj.insert("request", false);
+        obj.insert("device_name", Settings::deviceName());
+        obj.insert("device_type", QSysInfo::productType());
+        obj.insert("port", Settings::discoverable() ? serverPort : 0);
+        socket.writeDatagram(QJsonDocument(obj).toJson(QJsonDocument::Compact), addr, DISCOVERY_PORT);
     }
 }
 
 void DiscoveryService::refresh()
 {
-    qDebug()<<"执行了一次";
     QJsonObject obj;
     obj.insert("request", true);
     QByteArray json = QJsonDocument(obj).toJson(QJsonDocument::Compact);
@@ -78,9 +83,16 @@ QList<QHostAddress> DiscoveryService::broadcastAddresses()
     return ret;
 }
 
+/**
+ * @brief DiscoveryService::socketReadyRead
+ * 监听端口，随时响应其他设备的问询请求(request=true)
+ * 收到其他包的回应信息，更新在线设备列表(request=false)
+ */
 void DiscoveryService::socketReadyRead()
 {
+    //qDebug()<<"socketReadyRead running!";
     while (socket.hasPendingDatagrams()) {
+        //qDebug()<<"while running!";
         qint64 size = socket.pendingDatagramSize();
         QByteArray data(size, 0);
         QHostAddress addr;
@@ -98,7 +110,13 @@ void DiscoveryService::socketReadyRead()
         if (!request.isBool())
             continue;
         if (request.toBool()) {
-            sendInfo(addr, port);
+            // sendInfo(addr, port);
+            QJsonObject obj;
+            obj.insert("request", false);
+            obj.insert("device_name", Settings::deviceName());
+            obj.insert("device_type", QSysInfo::productType());
+            obj.insert("port", Settings::discoverable() ? serverPort : 0);
+            socket.writeDatagram(QJsonDocument(obj).toJson(QJsonDocument::Compact), addr, port);
             continue;
         }
         QJsonValue deviceName = obj.value("device_name");

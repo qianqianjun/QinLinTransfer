@@ -28,7 +28,6 @@ int main(int argc, char *argv[])
                                      .toUtf8().toStdString());
         TrayIcon t;
         t.show();
-        t.showMainWindow();
         return a.exec();
     } catch (const std::exception &e) {
         // 窗口的父组件，窗口的标题，窗口显示的内容。

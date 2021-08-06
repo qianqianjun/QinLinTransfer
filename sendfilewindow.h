@@ -4,6 +4,9 @@
 #include <onlinedeviceitem.h>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QList>
+#include <QMessageBox>
 namespace Ui {
 class sendFileWindow;
 }
@@ -13,12 +16,17 @@ typedef struct finfo{
     QString fileSize;
     finfo(QString name,QString size):fileName(name),fileSize(size){}
 }FileInfo;
+
 class SendFileManager:public QObject{
     Q_OBJECT
 public:
-    QVector<FileInfo> files;
+    QList<FileInfo> fileInfos;
+    QList<QSharedPointer<QFile>> files;
     int selectedIndex;
     SendFileManager(QObject* parent=nullptr);
+    void addFile(const QString& filename);
+    void removeFile();
+    QString parseSize(qint64 size);
 public slots:
     void changeIndex(int row,int col);
 };
@@ -33,10 +41,11 @@ public:
     explicit SendFileWindow(QVector<QString> names,
                             QVector<QString> ips,QWidget *parent = nullptr);
     ~SendFileWindow();
+    void initTargetDevice();
+    void initSelectedFileArea();
+    void renderselectedFiles();
 public slots:
-
 private:
     Ui::sendFileWindow *ui;
 };
-
 #endif // SENDFILEWINDOW_H

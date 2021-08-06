@@ -26,21 +26,21 @@ TrayIcon::TrayIcon(QObject *parent) : QSystemTrayIcon(parent)
         setIcon(appMaskIcon);
     else
         setIcon(appIcon);
-
     //QAction 是菜单项目
     QAction *action, *addrPortAction;
     addrPortAction = menu.addAction("");
     addrPortAction->setEnabled(false);
     menu.addSeparator();
-    action = menu.addAction(sendIcon, "发送文件");
-    connect(action, &QAction::triggered, this, &TrayIcon::sendActionTriggered);
+    action = menu.addAction(aboutIcon, "主界面");
+    connect(action, &QAction::triggered, this, &TrayIcon::showMainWindow);
     action = menu.addAction(openDownloadFolderIcon, "下载目录");
     connect(action, &QAction::triggered, this, &TrayIcon::openDownloadFolderActionTriggered);
+    action = menu.addAction(sendIcon, "发送文件");
+    connect(action, &QAction::triggered, this, &TrayIcon::sendActionTriggered);
     action = menu.addAction(settingsIcon, "设置");
     connect(action, &QAction::triggered, &settingsDialog, &SettingsDialog::show);
     menu.addSeparator();
-    action = menu.addAction(aboutIcon, "关于");
-    connect(action, &QAction::triggered, this, &TrayIcon::showMainWindow);
+
     action = menu.addAction(exitIcon, "退出");
     connect(action, &QAction::triggered, this, &TrayIcon::exitActionTriggered);
     setContextMenu(&menu);
@@ -53,13 +53,22 @@ TrayIcon::TrayIcon(QObject *parent) : QSystemTrayIcon(parent)
     server.start(); // 检查端口是否被占用，设置当新的TCP连接建立之后，执行的操作。
     addrPortAction->setText("端口: " + QString::number(server.port()));
 
+    this->haveUi=true;
     // 启动邻居发现服务
     discoveryService.start(server.port());
-
+    DiscoveryService* dp=&discoveryService;
+    mainui=new MainUI(dp);
+    mainui->show();
+    connect(mainui,&MainUI::closeWindow,this,&TrayIcon::mainuiClosed);
     // 提示信息，不重要
     QTimer::singleShot(0, this, [this]() {
         showMessage(QApplication::applicationName(), QApplication::applicationName() + " 在这里运行！");
     });
+}
+
+void TrayIcon::mainuiClosed(){
+    this->haveUi=false;
+    delete this->mainui;
 }
 
 void TrayIcon::sendActionTriggered()
@@ -84,10 +93,18 @@ void TrayIcon::exitActionTriggered()
 
 void TrayIcon::trayIconActivated(ActivationReason reason)
 {
-    if (reason == DoubleClick)
-        sendActionTriggered();
+    if (reason == DoubleClick){
+        this->showMainWindow();
+    }
 }
 
 void TrayIcon::showMainWindow(){
-    mainui.show();
+    if(this->haveUi){
+        mainui->activateWindow();
+    }else{
+        mainui=new MainUI(&discoveryService);
+        mainui->show();
+        connect(mainui,&MainUI::closeWindow,this,&TrayIcon::mainuiClosed);
+        this->haveUi=true;
+    }
 }

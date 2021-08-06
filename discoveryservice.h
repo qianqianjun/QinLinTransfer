@@ -12,6 +12,7 @@ public slots:
     void refresh();
 private:
     enum {
+//        DISCOVERY_PORT=8081
         DISCOVERY_PORT = 52637
     };
     QUdpSocket socket;
