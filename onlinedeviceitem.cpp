@@ -42,9 +42,6 @@ Title::Title(QVector<QString> heads,QWidget* parent):QWidget(parent),titles(head
     for(int i=0;i<labels.size();i++) layout->addWidget(labels[i]);
     this->setLayout(layout);
 }
-Title::~Title(){
-    qDebug()<<"release title";
-}
 
 // DeviceManager 相关的函数实现
 DeviceManager::DeviceManager(QToolButton* multi_transfer_btn,
@@ -120,31 +117,41 @@ void DeviceManager::openTransferWindow(QVector<DeviceInfo> devices){
     sendFileWindow->show();
 }
 
+QString ipv4Parser(QString str){
+    if(str.startsWith("::ffff:")){
+        QList<QString> arr=str.split("ffff:");
+        return arr[arr.length()-1];
+    }
+    return str;
+}
 void DeviceManager::updateDeviceList(const QString &deviceName, const QHostAddress &addr, quint16 port){
-    qDebug()<<deviceName;
-    qDebug()<<onlineInfos.size();
+//    qDebug()<<deviceName;
+//    qDebug()<<onlineInfos.size();
     if(port==0){
         for(int i=0;i<onlineInfos.size();i++){
-            if(QHostAddress(onlineInfos[i].ip).isEqual(addr)){
+            if(onlineInfos[i].addr.isEqual(addr)){
                 onlineInfos.remove(i);
                 break;
             }
         }
         //检查一下是否刚好在选中的列表中，如果有的话，马上删了。
         for(int i=0;i<selectedDevices.size();i++){
-            if(QHostAddress(selectedDevices[i].ip).isEqual(addr)){
+            if(selectedDevices[i].addr.isEqual(addr)){
                 selectedDevices.remove(i);
             }
         }
     }else{
+        bool add=true;
         for(int i=0;i<onlineInfos.size();i++){
-            if(QHostAddress(onlineInfos[i].ip).isEqual(addr)){
+            if(onlineInfos[i].addr.isEqual(addr)){
                 onlineInfos[i].name=deviceName;
                 onlineInfos[i].port=QString::number(port);
+                add=false;
                 break;
             }
         }
-        onlineInfos.push_back(DeviceInfo(deviceName,))
+        if(add)
+            onlineInfos.push_back(DeviceInfo(deviceName,ipv4Parser(addr.toString()),QString::number(port),addr));
     }
     // 下面是更新UI的操作
     freeOldWidget();
@@ -152,7 +159,7 @@ void DeviceManager::updateDeviceList(const QString &deviceName, const QHostAddre
 }
 
 void DeviceManager::renderOnlinePage(){
-    QVBoxLayout* layout=new QVBoxLayout(topWidget);
+    QVBoxLayout* layout=new QVBoxLayout();
     QVector<QString> heads;
     heads<<"选择"<<"设备名称"<<"Ip地址"<<"端口号"<<"操作";
     title=new Title(heads,topWidget);
@@ -176,16 +183,3 @@ void DeviceManager::renderOnlinePage(){
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

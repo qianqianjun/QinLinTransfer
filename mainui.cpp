@@ -5,14 +5,39 @@
 #include "mainui.h"
 #include "ui_mainui.h"
 #include "navigater.h"
+
+QHostAddress getLocalHostIP()
+{
+  QList<QHostAddress> AddressList = QNetworkInterface::allAddresses();
+  QHostAddress result;
+  foreach(QHostAddress address, AddressList){
+      if(address.protocol() == QAbstractSocket::IPv4Protocol &&
+         address != QHostAddress::Null &&
+         address != QHostAddress::LocalHost){
+          if (address.toString().contains("127.0.")){
+            continue;
+          }
+          result = address;
+          break;
+      }
+  }
+  return result;
+}
+
 MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(parent),
     ui(new Ui::MainUI),discoverService(discoverService){
     ui->setupUi(this);
+    initUserInfo();
     initialLeftMenu();
     manager=new DeviceManager(ui->multi_transfer_btn,ui->select_all,ui->devices_list_widget);
     manager->startAsking(discoverService);
     manager->renderOnlinePage();
     connect(this->discoverService,&DiscoveryService::newHost,this->manager,&DeviceManager::updateDeviceList);
+}
+void MainUI::initUserInfo(){
+    ui->nickname_label->setText(Settings::deviceName());
+    ui->port_label->setText(QString::number(Settings::serverPort()));
+    ui->ip_label->setText(getLocalHostIP().toString());
 }
 void MainUI::initialLeftMenu(){
     QVBoxLayout *layout=new QVBoxLayout();

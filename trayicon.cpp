@@ -87,6 +87,8 @@ void TrayIcon::openDownloadFolderActionTriggered()
 
 void TrayIcon::exitActionTriggered()
 {
+    // 在退出前向其他设备发送退出消息
+    discoveryService.leave();
     QApplication::exit();
 }
 

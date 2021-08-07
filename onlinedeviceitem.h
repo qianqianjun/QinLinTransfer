@@ -17,11 +17,13 @@
 #include <QDebug>
 #include <QApplication>
 #include <QTimer>
+#include <QHostAddress>
 typedef struct data{
     QString name;
     QString ip;
     QString port;
-    data(QString name,QString ip,QString port):name(name),ip(ip),port(port){}
+    QHostAddress addr;
+    data(QString name,QString ip,QString port,QHostAddress addr):name(name),ip(ip),port(port),addr(addr){}
 }DeviceInfo;
 
 class OnlineDeviceItem : public QWidget{
@@ -47,7 +49,6 @@ private:
     QVector<QLabel*> labels;
 public:
     explicit Title(QVector<QString> heads,QWidget* parent=nullptr);
-    ~Title();
 };
 
 class DeviceManager:public QObject{

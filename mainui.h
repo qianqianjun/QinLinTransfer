@@ -8,7 +8,9 @@
 #include <onlinedeviceitem.h>
 #include <QSpacerItem>
 #include <QCloseEvent>
+#include <QNetworkInterface>
 #include <discoveryservice.h>
+#include <settings.h>
 namespace Ui {
 class MainUI;
 }
@@ -29,6 +31,7 @@ private:
     DeviceManager* manager;
     DiscoveryService* discoverService;
     void initialLeftMenu();
+    void initUserInfo();
 };
 
 #endif // MAINUI_H

@@ -10,6 +10,7 @@ public:
     void start(quint16 serverPort);
 public slots:
     void refresh();
+    void leave();
 private:
     enum {
 //        DISCOVERY_PORT=8081

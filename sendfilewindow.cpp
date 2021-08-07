@@ -46,6 +46,7 @@ void SendFileWindow::initSelectedFileArea(){
         }
     });
     connect(ui->select_file_btn,&QToolButton::clicked,[=](){
+
         QStringList filenames = QFileDialog::getOpenFileNames(this, QString("选择要发送的文件"));
         if(!filenames.empty()){
             foreach (const QString &filename, filenames) {
