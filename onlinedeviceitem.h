@@ -8,7 +8,6 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QLabel>
-#include <QString>
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QToolButton>
@@ -17,14 +16,7 @@
 #include <QDebug>
 #include <QApplication>
 #include <QTimer>
-#include <QHostAddress>
-typedef struct data{
-    QString name;
-    QString ip;
-    QString port;
-    QHostAddress addr;
-    data(QString name,QString ip,QString port,QHostAddress addr):name(name),ip(ip),port(port),addr(addr){}
-}DeviceInfo;
+#include <util.h>
 
 class OnlineDeviceItem : public QWidget{
     Q_OBJECT

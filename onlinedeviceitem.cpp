@@ -9,7 +9,7 @@ OnlineDeviceItem::OnlineDeviceItem(DeviceInfo info,QWidget *parent) : QWidget(pa
     QHBoxLayout* layout=new QHBoxLayout(parent);
     this->deviceName=new QLabel(info.name,this);
     this->ip=new QLabel(info.ip,this);
-    this->port=new QLabel(info.port,this);
+    this->port=new QLabel(QString::number(info.port),this);
     this->btn=new QPushButton("传文件",this);
     this->checkbox=new QCheckBox(this);
     layout->addWidget(this->checkbox);
@@ -24,11 +24,9 @@ DeviceInfo OnlineDeviceItem::getDeviceInfo(){
     return this->info;
 }
 void OnlineDeviceItem::openTransferWindow(){
-    QVector<QString> names;
-    QVector<QString> ips;
-    names.push_back(info.name);
-    ips.push_back(info.ip);
-    SendFileWindow* sendFileWindow=new SendFileWindow(names,ips,nullptr);
+    QVector<DeviceInfo> infos;
+    infos.push_back(info);
+    SendFileWindow* sendFileWindow=new SendFileWindow(infos,nullptr);
     sendFileWindow->show();
 }
 
@@ -107,13 +105,7 @@ void DeviceManager::multiTransfer(){
 }
 
 void DeviceManager::openTransferWindow(QVector<DeviceInfo> devices){
-    QVector<QString> names;
-    QVector<QString> ips;
-    for(int i=0;i<devices.size();i++){
-        names.push_back(devices[i].name);
-        ips.push_back(devices[i].ip);
-    }
-    SendFileWindow* sendFileWindow=new SendFileWindow(names,ips,nullptr);
+    SendFileWindow* sendFileWindow=new SendFileWindow(devices,nullptr);
     sendFileWindow->show();
 }
 
@@ -145,13 +137,13 @@ void DeviceManager::updateDeviceList(const QString &deviceName, const QHostAddre
         for(int i=0;i<onlineInfos.size();i++){
             if(onlineInfos[i].addr.isEqual(addr)){
                 onlineInfos[i].name=deviceName;
-                onlineInfos[i].port=QString::number(port);
+                onlineInfos[i].port=port;
                 add=false;
                 break;
             }
         }
         if(add)
-            onlineInfos.push_back(DeviceInfo(deviceName,ipv4Parser(addr.toString()),QString::number(port),addr));
+            onlineInfos.push_back(DeviceInfo(deviceName,ipv4Parser(addr.toString()),port,addr));
     }
     // 下面是更新UI的操作
     freeOldWidget();

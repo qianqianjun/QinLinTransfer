@@ -10,10 +10,12 @@
 
 FileTransferReceiver::FileTransferReceiver(QObject *parent, QTcpSocket *socket) :
     FileTransferSession(parent, socket),writingFile(nullptr),downloadPath(Settings::downloadPath()) {
+    qDebug()<<"FileTransferReceiver::FileTransferReceiver";
 }
 
 void FileTransferReceiver::respond(bool accepted)
 {
+    qDebug()<<"FileTransferReceiver::respond";
     QJsonObject obj;
     obj.insert("response", static_cast<int>(accepted));
     // 继承自filetransfersession
@@ -38,6 +40,7 @@ void FileTransferReceiver::respond(bool accepted)
 
 void FileTransferReceiver::processReceivedData(const QByteArray &data)
 {
+    qDebug()<<"FileTransferReceiver::processReceivedData run";
     if (state == HANDSHAKE2) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         if (!json.isObject()) {
@@ -110,6 +113,7 @@ void FileTransferReceiver::processReceivedData(const QByteArray &data)
 
 void FileTransferReceiver::createNextFile()
 {
+    qDebug()<<"FileTransferReceiver::createNextFile";
     while (!transferQ.empty()) {
         FileMetadata &curFile = transferQ.first();
         QString filename = downloadPath + QDir::separator() + curFile.filename;

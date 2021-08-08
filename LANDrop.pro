@@ -20,7 +20,8 @@ SOURCES += \
     sendtodialog.cpp \
     settings.cpp \
     settingsdialog.cpp \
-    trayicon.cpp
+    trayicon.cpp \
+    util.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -39,7 +40,8 @@ HEADERS += \
     sendtodialog.h \
     settings.h \
     settingsdialog.h \
-    trayicon.h
+    trayicon.h \
+    util.h
 
 FORMS += \
     aboutdialog.ui \

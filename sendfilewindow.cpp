@@ -1,13 +1,15 @@
 #include "sendfilewindow.h"
 #include "ui_sendfilewindow.h"
 #include <QDebug>
-SendFileWindow::SendFileWindow(QVector<QString> names,QVector<QString> ips
-                               ,QWidget *parent):
-    QDialog(parent),names(names),ips(ips),ui(new Ui::sendFileWindow){
+SendFileWindow::SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent):
+    QDialog(parent),targetDevices(infos),ui(new Ui::sendFileWindow){
     ui->setupUi(this);
     initTargetDevice();
-    this->manager=new SendFileManager(this);
+    this->manager=new SendFileManager(targetDevices,this);
+    connect(this->manager,&SendFileManager::closeSelectFileWindow,this,&SendFileWindow::done);
     initSelectedFileArea();
+    connect(ui->send_btn,&QPushButton::clicked,this->manager,&SendFileManager::sendFile);
+    connect(this->manager,&SendFileManager::changeBtnAble,ui->send_btn,&QPushButton::setEnabled);
 }
 
 void SendFileWindow::initTargetDevice(){
@@ -18,11 +20,11 @@ void SendFileWindow::initTargetDevice(){
     ui->device_table->setColumnCount(2);
     ui->device_table->setHorizontalHeaderLabels(QStringList()<<"设备名称"<<"IP地址");
     ui->device_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->device_table->setRowCount(names.size());
-    for(int i=0;i<names.size();i++){
+    ui->device_table->setRowCount(targetDevices.size());
+    for(int i=0;i<targetDevices.size();i++){
         int col=0;
-        ui->device_table->setItem(i,col++,new QTableWidgetItem(names[i]));
-        ui->device_table->setItem(i,col++,new QTableWidgetItem(ips[i]));
+        ui->device_table->setItem(i,col++,new QTableWidgetItem(targetDevices[i].name));
+        ui->device_table->setItem(i,col++,new QTableWidgetItem(targetDevices[i].ip));
     }
 }
 
@@ -76,10 +78,14 @@ SendFileWindow::~SendFileWindow(){
  * @brief SendFileManager::SendFileManager 的相关实现函数
  * @param parent
  */
-SendFileManager::SendFileManager(QObject* parent):QObject(parent),selectedIndex(-1){
-
+SendFileManager::SendFileManager(QVector<DeviceInfo> targetDevices,
+                                 QObject* parent):
+    QObject(parent),targetDevices(targetDevices),selectedIndex(-1){
+    connect(&socketTimeoutTimer, &QTimer::timeout, this, &SendFileManager::socketTimeout);
+    socketTimeoutTimer.setSingleShot(true);
 }
 void SendFileManager::changeIndex(int row,int col){
+    qDebug()<<col;
     this->selectedIndex=row;
 }
 
@@ -118,5 +124,50 @@ void SendFileManager::removeFile(){
         this->fileInfos.removeAt(selectedIndex);
         this->files.removeAt(selectedIndex);
         selectedIndex=-1;
+    }
+}
+
+void SendFileManager::socketTimeout(){
+    socket->disconnectFromHost();
+    socket->close();
+    socket->deleteLater();
+    QMessageBox::critical(nullptr, QApplication::applicationName(), QString("连接超时！"));
+    emit changeBtnAble(true);
+}
+
+void SendFileManager::socketErrorOccurred(){
+    socketTimeoutTimer.stop();
+    socket->disconnectFromHost();
+    socket->close();
+    socket->deleteLater();
+    // 点击取消接收按钮，直接关闭弹出窗口都会触发error
+    // QMessageBox::critical(nullptr, QApplication::applicationName(), socket->errorString());
+    emit changeBtnAble(true);
+}
+
+void SendFileManager::socketConnected(){
+    socketTimeoutTimer.stop();
+    FileTransferSender *sender = new FileTransferSender(nullptr, socket, files);
+    FileTransferDialog *d = new FileTransferDialog(nullptr, sender);
+    d->setAttribute(Qt::WA_DeleteOnClose);
+    d->show();
+    // 关闭窗口
+    emit closeSelectFileWindow(QDialog::Accepted);
+}
+
+void SendFileManager::sendFile(){
+    // 检查是否已经选择了文件
+    if(files.size()<=0){
+        QMessageBox::critical(nullptr,"错误提示","请先选择要发送的文件！");
+    }else{
+        // 这里要遍历所有的目标设备，进行socket连接，发送数据。
+        for(int i=0;i<targetDevices.size();i++){
+            socket = new QTcpSocket(this);
+            connect(socket, &QTcpSocket::connected, this, &SendFileManager::socketConnected);
+            connect(socket,&QTcpSocket::errorOccurred,this, &SendFileManager::socketErrorOccurred);
+            socket->connectToHost(targetDevices[i].addr, targetDevices[i].port);
+            emit changeBtnAble(false);
+            socketTimeoutTimer.start(5000);
+        }
     }
 }

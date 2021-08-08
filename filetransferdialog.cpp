@@ -7,6 +7,7 @@
 FileTransferDialog::FileTransferDialog(QWidget *parent, FileTransferSession *session) :
     QDialog(parent), ui(new Ui::FileTransferDialog), session(session), errored(false), questionBox(this)
 {
+    qDebug()<<"FileTransferDialog::FileTransferDialog";
     ui->setupUi(this);
     setWindowFlag(Qt::WindowStaysOnTopHint); // 告知窗口系统，该窗口应该停留在所有其他窗口的上面。
 
@@ -27,6 +28,8 @@ FileTransferDialog::FileTransferDialog(QWidget *parent, FileTransferSession *ses
     connect(session, &FileTransferSession::updateProgress, this, &FileTransferDialog::sessionUpdateProgress);
     connect(session, &FileTransferSession::errorOccurred, this, &FileTransferDialog::sessionErrorOccurred);
     connect(session, &FileTransferSession::fileMetadataReady, this, &FileTransferDialog::sessionFileMetadataReady);
+
+    // 传送结束-> session.end -> 进度条窗口关闭
     connect(session, &FileTransferSession::ended, this, &FileTransferDialog::accept); // accept 为QDialog组件自带。
     session->start(); // 两个操作：（1）触发信号printMessage，显示正在握手，（2）发送公钥
 }
@@ -38,6 +41,7 @@ FileTransferDialog::~FileTransferDialog()
 
 void FileTransferDialog::respond(int result)
 {
+    qDebug()<<"FileTransferDialog::respond running!";
     bool response = result == QMessageBox::Yes;
     session->respond(response); // 不知道为什么会执行这一步
     if (!response) // response 不是Yes
@@ -46,24 +50,32 @@ void FileTransferDialog::respond(int result)
 
 void FileTransferDialog::sessionUpdateProgress(double progress)
 {
+    qDebug()<<"FileTransferDialog::sessionUpdateProgress";
     ui->progressBar->setValue(ui->progressBar->maximum() * progress);
 }
 
 void FileTransferDialog::sessionErrorOccurred(const QString &msg)
 {
+    qDebug()<<"FileTransferDialog::sessionErrorOccurred";
+    qDebug()<<errored;
+    qDebug()<<"visable: "<<isVisible();
+    qDebug()<<msg;
+    qDebug()<<"出错了！";
     if (errored)
         return;
     errored = true;
     if (isVisible())
-        QMessageBox::critical(this, QApplication::applicationName(), msg);
+        QMessageBox::critical(nullptr, QApplication::applicationName(), msg);
     done(QDialog::Rejected);
 }
 
+// 这是接收端的函数
 void FileTransferDialog::sessionFileMetadataReady(const QList<FileTransferSession::FileMetadata> &metadata,
                                                   quint64 totalSize,
                                                   const QString &deviceName,
                                                   const QString &sessionKeyDigest)
 {
+    qDebug()<<"FileTransferDialog::sessionFileMetadataReady";
     show();
     QString totalSizeStr = locale().formattedDataSize(totalSize, 2, QLocale::DataSizeTraditionalFormat);
     QString msg;
