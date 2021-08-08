@@ -56,17 +56,17 @@ void FileTransferDialog::sessionUpdateProgress(double progress)
 
 void FileTransferDialog::sessionErrorOccurred(const QString &msg)
 {
-    qDebug()<<"FileTransferDialog::sessionErrorOccurred";
+    qDebug()<<"FileTransferDialog::sessionErrorOccurred --start";
     qDebug()<<errored;
     qDebug()<<"visable: "<<isVisible();
     qDebug()<<msg;
-    qDebug()<<"出错了！";
     if (errored)
         return;
     errored = true;
     if (isVisible())
-        QMessageBox::critical(nullptr, QApplication::applicationName(), msg);
+        QMessageBox::critical(this, QApplication::applicationName(), msg);
     done(QDialog::Rejected);
+    qDebug()<<"FileTransferDialog::sessionErrorOccurred --end";
 }
 
 // 这是接收端的函数

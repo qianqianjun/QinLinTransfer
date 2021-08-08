@@ -2,14 +2,14 @@
 #include "ui_sendfilewindow.h"
 #include <QDebug>
 SendFileWindow::SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent):
-    QDialog(parent),targetDevices(infos),ui(new Ui::sendFileWindow){
+    QDialog(parent),ui(new Ui::sendFileWindow),targetDevices(infos){
     ui->setupUi(this);
     initTargetDevice();
     this->manager=new SendFileManager(targetDevices,this);
-    connect(this->manager,&SendFileManager::closeSelectFileWindow,this,&SendFileWindow::done);
     initSelectedFileArea();
-    connect(ui->send_btn,&QPushButton::clicked,this->manager,&SendFileManager::sendFile);
-    connect(this->manager,&SendFileManager::changeBtnAble,ui->send_btn,&QPushButton::setEnabled);
+    connect(ui->send_btn,&QPushButton::clicked,this,&SendFileWindow::sendFile);
+    connect(&socketTimeoutTimer, &QTimer::timeout, this, &SendFileWindow::socketTimeout);
+    socketTimeoutTimer.setSingleShot(true);
 }
 
 void SendFileWindow::initTargetDevice(){
@@ -74,6 +74,52 @@ SendFileWindow::~SendFileWindow(){
     delete ui;
 }
 
+void SendFileWindow::socketTimeout(){
+    socket->disconnectFromHost();
+    socket->close();
+    socket->deleteLater();
+    QMessageBox::critical(this, QApplication::applicationName(), "连接超时！");
+    ui->send_btn->setEnabled(true);
+    setCursor(QCursor(Qt::ArrowCursor));
+}
+
+void SendFileWindow::socketErrorOccurred(){
+    qDebug()<<"SendFileWindow::socketErrorOccurred --start";
+    socketTimeoutTimer.stop();
+    socket->disconnectFromHost();
+    socket->close();
+    socket->deleteLater();
+    QMessageBox::critical(this, QApplication::applicationName(), socket->errorString());
+    ui->send_btn->setEnabled(true);
+    setCursor(QCursor(Qt::ArrowCursor));
+    qDebug()<<"SendFileWindow::socketErrorOccurred --end";
+}
+
+void SendFileWindow::socketConnected(){
+    socketTimeoutTimer.stop();
+    FileTransferSender *sender = new FileTransferSender(nullptr, socket, this->manager->files);
+    FileTransferDialog *d = new FileTransferDialog(nullptr, sender);
+    d->setAttribute(Qt::WA_DeleteOnClose);
+    d->show();
+    done(Accepted);
+}
+
+void SendFileWindow::sendFile(){
+    // 检查是否已经选择了文件
+    if(this->manager->files.size()<=0){
+        QMessageBox::critical(nullptr,"错误提示","请先选择要发送的文件！");
+    }else{
+        // 这里要遍历所有的目标设备，进行socket连接，发送数据。
+        socket = new QTcpSocket(this);
+        connect(socket, &QTcpSocket::connected, this, &SendFileWindow::socketConnected);
+        connect(socket,&QTcpSocket::errorOccurred,this, &SendFileWindow::socketErrorOccurred);
+        socket->connectToHost(targetDevices[0].addr, targetDevices[0].port);
+        ui->send_btn->setEnabled(false);
+        setCursor(QCursor(Qt::WaitCursor));
+        socketTimeoutTimer.start(5000);
+    }
+}
+
 /**
  * @brief SendFileManager::SendFileManager 的相关实现函数
  * @param parent
@@ -81,14 +127,11 @@ SendFileWindow::~SendFileWindow(){
 SendFileManager::SendFileManager(QVector<DeviceInfo> targetDevices,
                                  QObject* parent):
     QObject(parent),targetDevices(targetDevices),selectedIndex(-1){
-    connect(&socketTimeoutTimer, &QTimer::timeout, this, &SendFileManager::socketTimeout);
-    socketTimeoutTimer.setSingleShot(true);
 }
 void SendFileManager::changeIndex(int row,int col){
     qDebug()<<col;
     this->selectedIndex=row;
 }
-
 void SendFileManager::addFile(const QString &filename){
     foreach (QSharedPointer<QFile> file, files) {
         if (file->fileName() == filename)
@@ -124,50 +167,5 @@ void SendFileManager::removeFile(){
         this->fileInfos.removeAt(selectedIndex);
         this->files.removeAt(selectedIndex);
         selectedIndex=-1;
-    }
-}
-
-void SendFileManager::socketTimeout(){
-    socket->disconnectFromHost();
-    socket->close();
-    socket->deleteLater();
-    QMessageBox::critical(nullptr, QApplication::applicationName(), QString("连接超时！"));
-    emit changeBtnAble(true);
-}
-
-void SendFileManager::socketErrorOccurred(){
-    socketTimeoutTimer.stop();
-    socket->disconnectFromHost();
-    socket->close();
-    socket->deleteLater();
-    // 点击取消接收按钮，直接关闭弹出窗口都会触发error
-    // QMessageBox::critical(nullptr, QApplication::applicationName(), socket->errorString());
-    emit changeBtnAble(true);
-}
-
-void SendFileManager::socketConnected(){
-    socketTimeoutTimer.stop();
-    FileTransferSender *sender = new FileTransferSender(nullptr, socket, files);
-    FileTransferDialog *d = new FileTransferDialog(nullptr, sender);
-    d->setAttribute(Qt::WA_DeleteOnClose);
-    d->show();
-    // 关闭窗口
-    emit closeSelectFileWindow(QDialog::Accepted);
-}
-
-void SendFileManager::sendFile(){
-    // 检查是否已经选择了文件
-    if(files.size()<=0){
-        QMessageBox::critical(nullptr,"错误提示","请先选择要发送的文件！");
-    }else{
-        // 这里要遍历所有的目标设备，进行socket连接，发送数据。
-        for(int i=0;i<targetDevices.size();i++){
-            socket = new QTcpSocket(this);
-            connect(socket, &QTcpSocket::connected, this, &SendFileManager::socketConnected);
-            connect(socket,&QTcpSocket::errorOccurred,this, &SendFileManager::socketErrorOccurred);
-            socket->connectToHost(targetDevices[i].addr, targetDevices[i].port);
-            emit changeBtnAble(false);
-            socketTimeoutTimer.start(5000);
-        }
     }
 }

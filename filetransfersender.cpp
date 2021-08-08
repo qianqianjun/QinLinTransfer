@@ -13,7 +13,7 @@ void FileTransferSender::socketBytesWritten(){
     // state 是父类的成员变量。
     if (state != TRANSFERRING || socket->bytesToWrite() > 0)
         return;
-
+    qDebug()<<"开始发送文件了！";
     while (!transferQ.empty()) {
         FileMetadata &curFile = transferQ.front();
         if (curFile.size == 0) {
@@ -42,7 +42,7 @@ void FileTransferSender::socketBytesWritten(){
 }
 FileTransferSender::FileTransferSender(QObject *parent, QTcpSocket *socket, const QList<QSharedPointer<QFile>> &files) :
     FileTransferSession(parent, socket), files(files){
-    qDebug()<<"FileTransferSender::socketBytesWritten";
+    qDebug()<<"FileTransferSender::FileTransferSender";
     // 当有写入操作时，bytesWritten就会被激活。
     connect(socket, &QTcpSocket::bytesWritten, this, &FileTransferSender::socketBytesWritten);
 
@@ -94,6 +94,7 @@ void FileTransferSender::processReceivedData(const QByteArray &data)
 
         if (response.toInt() == 0) {
             emit errorOccurred(QString("接收设备拒绝了连接请求！"));
+            qDebug()<<"return !";
             return;
         }
         state = TRANSFERRING;

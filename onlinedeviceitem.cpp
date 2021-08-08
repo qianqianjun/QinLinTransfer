@@ -27,6 +27,7 @@ void OnlineDeviceItem::openTransferWindow(){
     QVector<DeviceInfo> infos;
     infos.push_back(info);
     SendFileWindow* sendFileWindow=new SendFileWindow(infos,nullptr);
+    sendFileWindow->setAttribute(Qt::WA_DeleteOnClose);
     sendFileWindow->show();
 }
 

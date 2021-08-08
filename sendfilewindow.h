@@ -29,39 +29,33 @@ public:
     QList<FileInfo> fileInfos;
     QVector<DeviceInfo> targetDevices;
     QList<QSharedPointer<QFile>> files;
-    QTcpSocket *socket;
-    QTimer socketTimeoutTimer;
     int selectedIndex;
-
     SendFileManager(QVector<DeviceInfo> targetDevices,QObject* parent=nullptr);
     void addFile(const QString& filename);
     void removeFile();
     QString parseSize(qint64 size);
-
-signals:
-    void closeSelectFileWindow(int code);
-    void changeBtnAble(bool enable);
 public slots:
     void changeIndex(int row,int col);
-    void socketConnected();
-    void socketErrorOccurred();
-    void socketTimeout();
-    void sendFile();
 };
 
 class SendFileWindow : public QDialog{
     Q_OBJECT
 private:
+    Ui::sendFileWindow *ui;
     QVector<DeviceInfo> targetDevices;
     SendFileManager* manager;
+    QTcpSocket *socket;
+    QTimer socketTimeoutTimer;
 public:
     explicit SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent = nullptr);
     ~SendFileWindow();
     void initTargetDevice();
     void initSelectedFileArea();
     void renderselectedFiles();
-public slots:
-private:
-    Ui::sendFileWindow *ui;
+private slots:
+    void socketConnected();
+    void socketErrorOccurred();
+    void socketTimeout();
+    void sendFile();
 };
 #endif // SENDFILEWINDOW_H
