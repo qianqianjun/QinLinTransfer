@@ -23,6 +23,10 @@ public:
     ~MainUI();
 signals:
     void closeWindow();
+public slots:
+    void settingSave();
+    void settingCancle();
+    void chooseDownloadDir();
 protected:
     void closeEvent(QCloseEvent *event);
 private:
@@ -32,6 +36,7 @@ private:
     DiscoveryService* discoverService;
     void initialLeftMenu();
     void initUserInfo();
+    void initSettingPage();
 };
 
 #endif // MAINUI_H
