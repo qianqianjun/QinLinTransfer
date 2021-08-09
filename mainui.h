@@ -21,6 +21,9 @@ class MainUI : public QMainWindow
 public:
     explicit MainUI(DiscoveryService* discoverService,QWidget *parent = nullptr);
     ~MainUI();
+public slots:
+    void openTransferWindow();
+    void openReceiverWindow();
 signals:
     void closeWindow();
 public slots:
@@ -33,6 +36,7 @@ private:
     Navigater* navigater;
     Ui::MainUI *ui;
     DeviceManager* manager;
+    void initWebPage();
     DiscoveryService* discoverService;
     void initialLeftMenu();
     void initUserInfo();

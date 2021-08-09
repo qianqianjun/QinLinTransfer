@@ -5,6 +5,8 @@
 #include "mainui.h"
 #include "ui_mainui.h"
 #include "navigater.h"
+#include "websend.h"
+#include "webreceive.h"
 
 QHostAddress getLocalHostIP()
 {
@@ -29,6 +31,7 @@ MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(
     ui->setupUi(this);
     initUserInfo();
     initialLeftMenu();
+    initWebPage();
     manager=new DeviceManager(ui->multi_transfer_btn,ui->select_all,ui->devices_list_widget);
     manager->startAsking(discoverService);
     manager->renderOnlinePage();
@@ -148,3 +151,23 @@ MainUI::~MainUI(){
     delete navigater;
     delete manager;
 }
+
+void MainUI::openTransferWindow(){
+    websend *webs=new websend();
+    webs->show();
+}
+
+void MainUI::openReceiverWindow()
+{
+    webreceive *webr=new webreceive();
+    webr->show();
+}
+
+
+void MainUI::initWebPage()
+{
+    connect(ui->sendbtn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
+    connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
+    connect(ui->send,&QGroupBox::clicked,this,&MainUI::openTransferWindow);
+}
+
