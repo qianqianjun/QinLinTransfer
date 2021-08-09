@@ -21,15 +21,15 @@ class MainUI : public QMainWindow
 public:
     explicit MainUI(DiscoveryService* discoverService,QWidget *parent = nullptr);
     ~MainUI();
-public slots:
-    void openTransferWindow();
-    void openReceiverWindow();
+    void setPageIndex(int index);
 signals:
     void closeWindow();
 public slots:
     void settingSave();
     void settingCancle();
     void chooseDownloadDir();
+    void openTransferWindow();
+    void openReceiverWindow();
 protected:
     void closeEvent(QCloseEvent *event);
 private:

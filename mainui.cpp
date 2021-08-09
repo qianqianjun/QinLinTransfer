@@ -38,6 +38,8 @@ MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(
     connect(this->discoverService,&DiscoveryService::newHost,this->manager,&DeviceManager::updateDeviceList);
     initSettingPage();
 }
+
+// 构造函数需要的函数
 void MainUI::initUserInfo(){
     ui->nickname_label->setText(Settings::deviceName());
     ui->port_label->setText(QString::number(Settings::serverPort()));
@@ -72,6 +74,13 @@ void MainUI::initSettingPage(){
     connect(ui->set_cancle_btn,&QPushButton::clicked,this,&MainUI::settingCancle);
     connect(ui->set_choosedir_btn,&QPushButton::clicked,this,&MainUI::chooseDownloadDir);
 }
+void MainUI::initWebPage()
+{
+    connect(ui->sendbtn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
+    connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
+    connect(ui->send,&QGroupBox::clicked,this,&MainUI::openTransferWindow);
+}
+// 设置界面需要的函数
 void MainUI::settingSave(){
     QStringList wrongItems;
     if(ui->set_devicename->text()=="") wrongItems.push_back("设备名称");
@@ -152,22 +161,22 @@ MainUI::~MainUI(){
     delete manager;
 }
 
+// web传输界面需要的函数
 void MainUI::openTransferWindow(){
     websend *webs=new websend();
     webs->show();
 }
-
 void MainUI::openReceiverWindow()
 {
     webreceive *webr=new webreceive();
     webr->show();
 }
 
-
-void MainUI::initWebPage()
-{
-    connect(ui->sendbtn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
-    connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
-    connect(ui->send,&QGroupBox::clicked,this,&MainUI::openTransferWindow);
+// 外部调用的函数
+void MainUI::setPageIndex(int index){
+    if(ui->stackedWidget->count()>index){
+        this->navigater->selected(index);
+    }else{
+        qDebug()<<"页数超过范围！";
+    }
 }
-

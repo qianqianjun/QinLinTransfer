@@ -3,7 +3,6 @@ QT += core gui widgets network
 CONFIG += c++11
 
 SOURCES += \
-    aboutdialog.cpp \
     crypto.cpp \
     discoveryservice.cpp \
     filetransferdialog.cpp \
@@ -24,18 +23,14 @@ SOURCES += \
     qrencode/qrspec.c \
     qrencode/rsecc.c \
     qrencode/split.c \
-    selectfilesdialog.cpp \
     sendfilewindow.cpp \
-    sendtodialog.cpp \
     settings.cpp \
-    settingsdialog.cpp \
     trayicon.cpp \
     webreceive.cpp \
     websend.cpp
     util.cpp
 
 HEADERS += \
-    aboutdialog.h \
     crypto.h \
     discoveryservice.h \
     filetransferdialog.h \
@@ -57,24 +52,17 @@ HEADERS += \
     qrencode/qrspec.h \
     qrencode/rsecc.h \
     qrencode/split.h \
-    selectfilesdialog.h \
     sendfilewindow.h \
-    sendtodialog.h \
     settings.h \
-    settingsdialog.h \
     trayicon.h \
     webreceive.h \
     websend.h
     util.h
 
 FORMS += \
-    aboutdialog.ui \
     filetransferdialog.ui \
     mainui.ui \
-    selectfilesdialog.ui \
     sendfilewindow.ui \
-    sendtodialog.ui \
-    settingsdialog.ui \
     webreceive.ui \
     websend.ui
 
