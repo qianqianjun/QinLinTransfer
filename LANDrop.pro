@@ -15,12 +15,23 @@ SOURCES += \
     mainui.cpp \
     navigater.cpp \
     onlinedeviceitem.cpp \
+    qrencode/bitstream.c \
+    qrencode/mask.c \
+    qrencode/mmask.c \
+    qrencode/mqrspec.c \
+    qrencode/qrencode.c \
+    qrencode/qrinput.c \
+    qrencode/qrspec.c \
+    qrencode/rsecc.c \
+    qrencode/split.c \
     selectfilesdialog.cpp \
     sendfilewindow.cpp \
     sendtodialog.cpp \
     settings.cpp \
     settingsdialog.cpp \
-    trayicon.cpp
+    trayicon.cpp \
+    webreceive.cpp \
+    websend.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -34,12 +45,25 @@ HEADERS += \
     mainui.h \
     navigater.h \
     onlinedeviceitem.h \
+    qrencode/bitstream.h \
+    qrencode/config.h \
+    qrencode/mask.h \
+    qrencode/mmask.h \
+    qrencode/mqrspec.h \
+    qrencode/qrencode.h \
+    qrencode/qrencode_inner.h \
+    qrencode/qrinput.h \
+    qrencode/qrspec.h \
+    qrencode/rsecc.h \
+    qrencode/split.h \
     selectfilesdialog.h \
     sendfilewindow.h \
     sendtodialog.h \
     settings.h \
     settingsdialog.h \
-    trayicon.h
+    trayicon.h \
+    webreceive.h \
+    websend.h
 
 FORMS += \
     aboutdialog.ui \
@@ -48,7 +72,9 @@ FORMS += \
     selectfilesdialog.ui \
     sendfilewindow.ui \
     sendtodialog.ui \
-    settingsdialog.ui
+    settingsdialog.ui \
+    webreceive.ui \
+    websend.ui
 
 RESOURCES += \
     icons.qrc

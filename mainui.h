@@ -19,10 +19,14 @@ public:
     explicit MainUI(QWidget *parent = nullptr);
     ~MainUI();
 
+public slots:
+    void openTransferWindow();
+    void openReceiverWindow();
 private:
     Navigater* navigater;
     Ui::MainUI *ui;
     DeviceManager* manager;
+    void initWebPage();
     void initialLeftMenu();
     void initialOnlinePage(const QVector<DeviceInfo>& devices);
 };

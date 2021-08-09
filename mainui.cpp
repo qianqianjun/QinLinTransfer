@@ -5,6 +5,8 @@
 #include "mainui.h"
 #include "ui_mainui.h"
 #include "navigater.h"
+#include "websend.h"
+#include "webreceive.h"
 MainUI::MainUI(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainUI){
     ui->setupUi(this);
     initialLeftMenu();
@@ -12,8 +14,8 @@ MainUI::MainUI(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainUI){
     QVector<DeviceInfo> devices;
     devices.push_back(DeviceInfo("荣耀手机","192.168.31.34","53645"));
     devices.push_back(DeviceInfo("Surface","192.168.31.226","8080"));
-
     initialOnlinePage(devices);
+    initWebPage();
 }
 void MainUI::initialLeftMenu(){
     QVBoxLayout *layout=new QVBoxLayout();
@@ -53,3 +55,23 @@ void MainUI::initialOnlinePage(const QVector<DeviceInfo>& devices){
 MainUI::~MainUI(){
     delete ui;
 }
+
+void MainUI::openTransferWindow(){
+    websend *webs=new websend();
+    webs->show();
+}
+
+void MainUI::openReceiverWindow()
+{
+    webreceive *webr=new webreceive();
+    webr->show();
+}
+
+
+void MainUI::initWebPage()
+{
+    connect(ui->sendbtn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
+    connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
+    connect(ui->send,&QGroupBox::clicked,this,&MainUI::openTransferWindow);
+}
+
