@@ -4,20 +4,16 @@
 FileTransferSession::FileTransferSession(QObject *parent, QTcpSocket *socket) :
     QObject(parent), state(HANDSHAKE1), socket(socket), totalSize(0), transferredSize(0)
 {
+    qDebug()<<"FileTransferSession::FileTransferSession";
     socket->setParent(this);
     socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
     connect(socket, &QTcpSocket::readyRead, this, &FileTransferSession::socketReadyRead);
-    connect(socket,
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-            &QTcpSocket::errorOccurred,
-#else
-            QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
-#endif
-            this, &FileTransferSession::socketErrorOccurred);
+    // connect(socket,&QTcpSocket::errorOccurred,this, &FileTransferSession::socketErrorOccurred);
 }
 
 void FileTransferSession::start()
 {
+    qDebug()<<"FileTransferSession::start";
     emit printMessage(QString("握手中..."));
     // QTcpSocket 的write函数
     // write ( const char *, qint64 ) : qint64
@@ -27,13 +23,15 @@ void FileTransferSession::start()
     socket->write(crypto.localPublicKey());
 }
 
-void FileTransferSession::respond(bool) // 这里没看懂到底什么意思。
+void FileTransferSession::respond(bool) //
 {
+    qDebug()<<"FileTransferSession::respond";
     throw std::runtime_error("respond not implemented");
 }
 
 void FileTransferSession::encryptAndSend(const QByteArray &data)
 {
+    qDebug()<<"FileTransferSession::encryptAndSend";
     QByteArray sendData = crypto.encrypt(data);
     quint16 size = sendData.size();
     sendData.prepend(static_cast<quint8>(size & 0xFF)); // 将内容写到data的最前面
@@ -41,10 +39,13 @@ void FileTransferSession::encryptAndSend(const QByteArray &data)
     socket->write(sendData); // 发送数据
 }
 
-void FileTransferSession::handshake1Finished() {}
+void FileTransferSession::handshake1Finished() {
+    qDebug()<<"FileTransferSession handshake1Finished run";
+}
 
 void FileTransferSession::socketReadyRead()
 {
+    qDebug()<<"FileTransferSession::socketReadyRead";
     readBuffer += socket->readAll();
 
     if (state == HANDSHAKE1) {
@@ -60,10 +61,11 @@ void FileTransferSession::socketReadyRead()
             emit errorOccurred(e.what());
             return;
         }
-        emit printMessage(QString("建立连接，握手中: %1").arg(crypto.sessionKeyDigest()));
+        // emit printMessage(QString("建立连接，握手中: %1").arg(crypto.sessionKeyDigest()));
         state = HANDSHAKE2;
-
+        qDebug()<<"要执行多态函数了！";
         handshake1Finished();
+        qDebug()<<"多态函数执行完成！";
     }
 
     while (!readBuffer.isEmpty()) {
@@ -84,13 +86,13 @@ void FileTransferSession::socketReadyRead()
             emit errorOccurred(e.what());
             return;
         }
-
         processReceivedData(data);
     }
 }
 
 void FileTransferSession::socketErrorOccurred()
 {
+    qDebug()<<"FileTransferSession::socketErrorOccurred";
     if (state != FINISHED)
         emit errorOccurred(socket->errorString());
 }

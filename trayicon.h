@@ -13,13 +13,15 @@ public:
     explicit TrayIcon(QObject *parent = nullptr);
 public slots:
     void showMainWindow();
+    void mainuiClosed();
 private:
     QMenu menu;
     AboutDialog aboutDialog;
     SettingsDialog settingsDialog;
     FileTransferServer server;
     DiscoveryService discoveryService;
-    MainUI mainui;
+    MainUI* mainui;
+    bool haveUi;
 private slots:
     void sendActionTriggered(); // 点击发送文件的执行操作
     void openDownloadFolderActionTriggered(); // 点击下载目录执行操作

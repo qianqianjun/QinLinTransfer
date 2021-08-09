@@ -16,8 +16,8 @@ SendToDialog::SendToDialog(QWidget *parent, const QList<QSharedPointer<QFile>> &
     connect(ui->hostsListView, &QListView::clicked, this, &SendToDialog::hostsListViewClicked);
     connect(ui->hostsListView, &QListView::doubleClicked, ui->buttonBox, &QDialogButtonBox::accepted);
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Send"));
-    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(QString("发送"));
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(QString("取消"));
 
     connect(&discoveryService, &DiscoveryService::newHost, this, &SendToDialog::newHost);
     connect(&discoveryTimer, &QTimer::timeout, &discoveryService, &DiscoveryService::refresh);
@@ -79,11 +79,10 @@ void SendToDialog::accept()
     bool ok;
     quint16 port = ui->portLineEdit->text().toUShort(&ok);
     if (!ok) {
-        QMessageBox::critical(this, QApplication::applicationName(),
-                              tr("Invalid port. Please enter a number between 1 and 65535."));
+        QMessageBox::critical(this, QApplication::applicationName(),QString("端口号非法输入"));
         return;
     }
-
+    // QTcpSocket
     socket = new QTcpSocket(this);
     connect(socket, &QTcpSocket::connected, this, &SendToDialog::socketConnected);
     connect(socket,
@@ -96,6 +95,7 @@ void SendToDialog::accept()
     socket->connectToHost(addr, port);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     setCursor(QCursor(Qt::WaitCursor));
+    // QTimer
     socketTimeoutTimer.start(5000);
 }
 
@@ -106,6 +106,7 @@ void SendToDialog::socketConnected()
     FileTransferDialog *d = new FileTransferDialog(nullptr, sender);
     d->setAttribute(Qt::WA_DeleteOnClose);
     d->show();
+    // 下面实际上是关闭sendtoDialog 窗口
     done(Accepted);
 }
 

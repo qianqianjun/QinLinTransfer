@@ -29,7 +29,7 @@
     <item>
      <widget class="QPushButton" name="pushButton">
       <property name="text">
-       <string>选择文件</string>
+       <string>选择文件生成二维码</string>
       </property>
      </widget>
     </item>

@@ -7,15 +7,40 @@
 #include "navigater.h"
 #include "websend.h"
 #include "webreceive.h"
-MainUI::MainUI(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainUI){
-    ui->setupUi(this);
-    initialLeftMenu();
 
-    QVector<DeviceInfo> devices;
-    devices.push_back(DeviceInfo("荣耀手机","192.168.31.34","53645"));
-    devices.push_back(DeviceInfo("Surface","192.168.31.226","8080"));
-    initialOnlinePage(devices);
+QHostAddress getLocalHostIP()
+{
+  QList<QHostAddress> AddressList = QNetworkInterface::allAddresses();
+  QHostAddress result;
+  foreach(QHostAddress address, AddressList){
+      if(address.protocol() == QAbstractSocket::IPv4Protocol &&
+         address != QHostAddress::Null &&
+         address != QHostAddress::LocalHost){
+          if (address.toString().contains("127.0.")){
+            continue;
+          }
+          result = address;
+          break;
+      }
+  }
+  return result;
+}
+
+MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(parent),
+    ui(new Ui::MainUI),discoverService(discoverService){
+    ui->setupUi(this);
+    initUserInfo();
+    initialLeftMenu();
     initWebPage();
+    manager=new DeviceManager(ui->multi_transfer_btn,ui->select_all,ui->devices_list_widget);
+    manager->startAsking(discoverService);
+    manager->renderOnlinePage();
+    connect(this->discoverService,&DiscoveryService::newHost,this->manager,&DeviceManager::updateDeviceList);
+}
+void MainUI::initUserInfo(){
+    ui->nickname_label->setText(Settings::deviceName());
+    ui->port_label->setText(QString::number(Settings::serverPort()));
+    ui->ip_label->setText(getLocalHostIP().toString());
 }
 void MainUI::initialLeftMenu(){
     QVBoxLayout *layout=new QVBoxLayout();
@@ -35,25 +60,14 @@ void MainUI::initialLeftMenu(){
     layout->addWidget(setting);
     ui->menu_widget->setLayout(layout);
 }
-void MainUI::initialOnlinePage(const QVector<DeviceInfo>& devices){
-    QVBoxLayout* layout=new QVBoxLayout(this);
-    manager=new DeviceManager(ui->multi_transfer_btn,ui->select_all);
-    QVector<QString> heads;
-    heads<<"选择"<<"设备名称"<<"Ip地址"<<"端口号"<<"操作";
-    Title* title=new Title(heads,this);
-    layout->addWidget(title);
-
-    for(int i=0;i<devices.size();i++){
-        OnlineDeviceItem* item=new OnlineDeviceItem(devices[i],ui->devices_list_widget);
-        manager->addOnlineDeviceItem(item);
-        layout->addWidget(item);
-    }
-    manager->addConnectionAction();
-    layout->addStretch();
-    ui->devices_list_widget->setLayout(layout);
+void MainUI::closeEvent(QCloseEvent *event){
+    event->type();
+    emit closeWindow();
 }
 MainUI::~MainUI(){
     delete ui;
+    delete navigater;
+    delete manager;
 }
 
 void MainUI::openTransferWindow(){

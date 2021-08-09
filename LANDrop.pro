@@ -32,6 +32,7 @@ SOURCES += \
     trayicon.cpp \
     webreceive.cpp \
     websend.cpp
+    util.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -64,6 +65,7 @@ HEADERS += \
     trayicon.h \
     webreceive.h \
     websend.h
+    util.h
 
 FORMS += \
     aboutdialog.ui \

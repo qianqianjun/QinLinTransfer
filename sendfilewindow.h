@@ -4,6 +4,15 @@
 #include <onlinedeviceitem.h>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QList>
+#include <QMessageBox>
+#include <QTcpSocket>
+#include <QTimer>
+#include <util.h>
+#include <filetransfersender.h>
+#include <filetransferdialog.h>
+
 namespace Ui {
 class sendFileWindow;
 }
@@ -13,12 +22,18 @@ typedef struct finfo{
     QString fileSize;
     finfo(QString name,QString size):fileName(name),fileSize(size){}
 }FileInfo;
+
 class SendFileManager:public QObject{
     Q_OBJECT
 public:
-    QVector<FileInfo> files;
+    QList<FileInfo> fileInfos;
+    QVector<DeviceInfo> targetDevices;
+    QList<QSharedPointer<QFile>> files;
     int selectedIndex;
-    SendFileManager(QObject* parent=nullptr);
+    SendFileManager(QVector<DeviceInfo> targetDevices,QObject* parent=nullptr);
+    void addFile(const QString& filename);
+    void removeFile();
+    QString parseSize(qint64 size);
 public slots:
     void changeIndex(int row,int col);
 };
@@ -26,17 +41,21 @@ public slots:
 class SendFileWindow : public QDialog{
     Q_OBJECT
 private:
-    QVector<QString> names;
-    QVector<QString> ips;
-    SendFileManager* manager;
-public:
-    explicit SendFileWindow(QVector<QString> names,
-                            QVector<QString> ips,QWidget *parent = nullptr);
-    ~SendFileWindow();
-public slots:
-
-private:
     Ui::sendFileWindow *ui;
+    QVector<DeviceInfo> targetDevices;
+    SendFileManager* manager;
+    QTcpSocket *socket;
+    QTimer socketTimeoutTimer;
+public:
+    explicit SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent = nullptr);
+    ~SendFileWindow();
+    void initTargetDevice();
+    void initSelectedFileArea();
+    void renderselectedFiles();
+private slots:
+    void socketConnected();
+    void socketErrorOccurred();
+    void socketTimeout();
+    void sendFile();
 };
-
 #endif // SENDFILEWINDOW_H
