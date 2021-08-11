@@ -78,7 +78,6 @@ void MainUI::initWebPage()
 {
     connect(ui->sendbtn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
     connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
-    connect(ui->send,&QGroupBox::clicked,this,&MainUI::openTransferWindow);
 }
 // 设置界面需要的函数
 void MainUI::settingSave(){
@@ -163,14 +162,16 @@ MainUI::~MainUI(){
 
 // web传输界面需要的函数
 void MainUI::openTransferWindow(){
-    websend *webs=new websend();
+    WebSend *webs=new WebSend();
     webs->show();
 }
 void MainUI::openReceiverWindow()
 {
-    webreceive *webr=new webreceive();
+    WebReceive *webr=new WebReceive();
     webr->show();
 }
+
+
 
 // 外部调用的函数
 void MainUI::setPageIndex(int index){
@@ -179,4 +180,5 @@ void MainUI::setPageIndex(int index){
     }else{
         qDebug()<<"页数超过范围！";
     }
+
 }

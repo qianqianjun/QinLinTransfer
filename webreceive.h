@@ -3,29 +3,30 @@
 
 #include <QWidget>
 #include "qrencode/qrencode.h"
+#include "qrcode.h"
 
 namespace Ui {
 class webreceive;
 }
 
-class webreceive : public QWidget
+class WebReceive : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit webreceive(QWidget *parent = nullptr);
-    ~webreceive();
-
-protected:
-    void paintEvent(QPaintEvent *event);
-
+    explicit WebReceive(QWidget *parent = nullptr);
+    void removeOld();
+    void updateUrl(const QString& str);
+    ~WebReceive();
 private slots:
+
+    void on_pushButton_clicked();
 
 private:
     Ui::webreceive *ui;
-    int _size;
-    int _margin;
-    QByteArray _str;
+    QString url;
+    bool havaQrcode;
+    QrcodeWidget* qrcodeWidget;
 };
 
 #endif // WEBRECEIVE_H
