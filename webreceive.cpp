@@ -1,9 +1,5 @@
 #include "webreceive.h"
 #include "ui_webreceive.h"
-#include <QString>
-#include <QPainter>
-#include <QBrush>
-#include <QLayout>
 
 WebReceive::WebReceive(WebServer*& webServer,QWidget *parent) :
     QWidget(parent),
@@ -37,8 +33,7 @@ void WebReceive::on_pushButton_clicked()
     havaQrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
-    qDebug()<<"WebReceive::on_pushButton_clicked() not used !";
-    QString url=webServer->openReceiver(ui->ips_combox->currentText(),3000);
+    QString url=webServer->openReceiver(ui->ips_combox->currentText(),Settings::WebPort());
     qrcodeWidget->setUrl(url);
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);

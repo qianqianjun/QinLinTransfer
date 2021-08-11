@@ -47,8 +47,7 @@ void WebSend::on_pushButton_2_clicked()
     havaQrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
-    qDebug()<<"WebSend::on_pushButton_2_clicked() set port id not use!";
-    QString url=webServer->openSender(ui->ip_combox->currentText(),3000,filePath);
+    QString url=webServer->openSender(ui->ip_combox->currentText(),Settings::WebPort(),filePath);
     qrcodeWidget->setUrl(url);
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);

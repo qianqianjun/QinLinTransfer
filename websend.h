@@ -14,6 +14,7 @@
 #include <webserver.h>
 #include <QFile>
 #include <util.h>
+#include <settings.h>
 
 namespace Ui {
 class websend;

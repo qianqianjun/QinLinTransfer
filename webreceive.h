@@ -5,7 +5,11 @@
 #include "qrencode/qrencode.h"
 #include "qrcode.h"
 #include <webserver.h>
-
+#include <QString>
+#include <QPainter>
+#include <QBrush>
+#include <QLayout>
+#include <settings.h>
 namespace Ui {
 class webreceive;
 }
