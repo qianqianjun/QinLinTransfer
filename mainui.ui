@@ -166,7 +166,7 @@ color: rgb(0, 0, 0);</string>
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="online">
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -294,8 +294,8 @@ color: rgb(0, 0, 0);</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>707</width>
-             <height>505</height>
+             <width>703</width>
+             <height>480</height>
             </rect>
            </property>
           </widget>
@@ -480,7 +480,7 @@ color: rgb(0, 0, 0);</string>
      Android/Ios 
 
 大小限制：
- &lt;512M</string>
+     &lt;512M</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -719,6 +719,75 @@ color: rgb(0, 0, 0);</string>
          </widget>
         </item>
         <item>
+         <widget class="QWidget" name="widget_13" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <property name="spacing">
+            <number>15</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>60</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>60</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>web端口</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="set_web_port">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>303</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>303</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_14">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <widget class="QWidget" name="widget_4" native="true">
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <property name="spacing">
@@ -822,7 +891,7 @@ color: rgb(0, 0, 0);</string>
            <item>
             <widget class="QPushButton" name="set_choosedir_btn">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -830,13 +899,13 @@ color: rgb(0, 0, 0);</string>
              <property name="minimumSize">
               <size>
                <width>40</width>
-               <height>0</height>
+               <height>20</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>40</width>
-               <height>16777215</height>
+               <height>20</height>
               </size>
              </property>
              <property name="text">
