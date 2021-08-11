@@ -27,8 +27,24 @@ SOURCES += \
     settings.cpp \
     trayicon.cpp \
     webreceive.cpp \
-    websend.cpp
-    util.cpp
+    websend.cpp \
+    util.cpp \
+    # start of httpserver and templeteengine
+    httpserver/httpglobal.cpp \
+    httpserver/httplistener.cpp \
+    httpserver/httpconnectionhandler.cpp \
+    httpserver/httpconnectionhandlerpool.cpp \
+    httpserver/httprequest.cpp \
+    httpserver/httpresponse.cpp \
+    httpserver/httpcookie.cpp \
+    httpserver/httprequesthandler.cpp \
+    httpserver/httpsession.cpp \
+    httpserver/httpsessionstore.cpp \
+    httpserver/staticfilecontroller.cpp \
+    templateengine/template.cpp \
+    templateengine/templateloader.cpp \
+    templateengine/templatecache.cpp
+    # end of httpserver and templeteengine
 
 HEADERS += \
     crypto.h \
@@ -56,8 +72,25 @@ HEADERS += \
     settings.h \
     trayicon.h \
     webreceive.h \
-    websend.h
-    util.h
+    websend.h \
+    util.h \
+    # start of httpserver and templeteengine
+    httpserver/httpglobal.h \
+    httpserver/httplistener.h \
+    httpserver/httpconnectionhandler.h \
+    httpserver/httpconnectionhandlerpool.h \
+    httpserver/httprequest.h \
+    httpserver/httpresponse.h \
+    httpserver/httpcookie.h \
+    httpserver/httprequesthandler.h \
+    httpserver/httpsession.h \
+    httpserver/httpsessionstore.h \
+    httpserver/staticfilecontroller.h\
+    templateengine/templateglobal.h \
+    templateengine/template.h \
+    templateengine/templateloader.h \
+    templateengine/templatecache.h
+    # end of httpserver and templeteengine
 
 FORMS += \
     filetransferdialog.ui \
@@ -103,3 +136,5 @@ unix {
 }
 
 QMAKE_INFO_PLIST = Info.plist
+
+OTHER_FILES += etc/* etc/static/*
