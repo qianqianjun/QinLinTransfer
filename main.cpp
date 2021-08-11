@@ -26,7 +26,8 @@ int main(int argc, char *argv[])
         if (!QSystemTrayIcon::isSystemTrayAvailable())
             throw std::runtime_error(a.translate("Main", "您的系统不支持托盘运行模式！")
                                      .toUtf8().toStdString());
-        TrayIcon t;
+        QApplication* app=&a;
+        TrayIcon t(app);
         t.show();
         return a.exec();
     } catch (const std::exception &e) {

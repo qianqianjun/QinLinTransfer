@@ -2,6 +2,9 @@
 #define UTIL_H
 #include <QString>
 #include <QHostAddress>
+#include <QFile>
+#include <QDir>
+#include <QCoreApplication>
 typedef struct data{
     QString name;
     QString ip;
@@ -9,6 +12,8 @@ typedef struct data{
     QHostAddress addr;
     data(QString name,QString ip,qint16 port,QHostAddress addr):name(name),ip(ip),port(port),addr(addr){}
 }DeviceInfo;
+
+QString searchConfigFile(QString fileName);
 
 class util
 {

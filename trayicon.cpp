@@ -7,9 +7,8 @@
 #include <QUrl>
 #include "settings.h"
 #include "trayicon.h"
-
 // 这里是系统托盘实现。
-TrayIcon::TrayIcon(QObject *parent) : QSystemTrayIcon(parent)
+TrayIcon::TrayIcon(QApplication*& a,QObject *parent) : QSystemTrayIcon(parent),app(a)
 {
     QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
     QIcon appIcon(":/icons/app.png");
@@ -19,6 +18,8 @@ TrayIcon::TrayIcon(QObject *parent) : QSystemTrayIcon(parent)
     QIcon openDownloadFolderIcon(":/icons/open_download_folder.png");
     QIcon settingsIcon(":/icons/settings.png");
     QIcon exitIcon(":/icons/exit.png");
+    // test code
+    QIcon testIcon(":/icons/about.png");
     if (QSysInfo::productType() == "osx" || QSysInfo::productType() == "macos")
         setIcon(appMaskIcon);
     else
@@ -35,6 +36,9 @@ TrayIcon::TrayIcon(QObject *parent) : QSystemTrayIcon(parent)
     action = menu.addAction(settingsIcon, "设置");
     connect(action, &QAction::triggered, this, &TrayIcon::showSettingWindow);
     menu.addSeparator();
+
+    action = menu.addAction(testIcon,"测试");
+    connect(action,&QAction::triggered,this,&TrayIcon::openHttpserver);
 
     action = menu.addAction(exitIcon, "退出");
     connect(action, &QAction::triggered, this, &TrayIcon::exitApplication);
@@ -86,6 +90,21 @@ void TrayIcon::trayActivated(ActivationReason reason)
     if (reason == DoubleClick){
         this->showOnlineDeviceWindow();
     }
+}
+
+void TrayIcon::openHttpserver()
+{
+    qDebug()<<"open httpserver!";
+    QString app_path=QApplication::applicationDirPath();
+    QString conf_path=app_path+"/etc/qilintransfer.ini";
+
+    QSettings* templateSettings=new QSettings(conf_path,QSettings::IniFormat,app);
+    templateSettings->beginGroup("templates");
+    TemplateCache* templateCache=new TemplateCache(templateSettings,app);
+
+    QSettings* fileSettings=new QSettings(conf_path,QSettings::IniFormat,app);
+    fileSettings->beginGroup("docroot");
+    StaticFileController* staticFileController=new StaticFileController(fileSettings,app);
 }
 
 void TrayIcon::showOnlineDeviceWindow(){
