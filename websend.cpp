@@ -1,52 +1,55 @@
 #include "websend.h"
 #include "ui_websend.h"
 #include <QFile>
-#include <QFileDialog>
-#include <QString>
-#include <QPainter>
-#include <QBrush>
-#include <QDebug>
+#include <websend.h>
 
-websend::websend(QWidget *parent) :
+WebSend::WebSend(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::websend)
+    ui(new Ui::websend),havaQrcode(false)
 {
     ui->setupUi(this);
     setWindowTitle("发送文件");
+    connect(ui->lineEdit,&QLineEdit::textEdited,this,&WebSend::updateUrl);
 }
 
-websend::~websend()
+void WebSend::removeOld()
+{
+    if(havaQrcode){
+        delete ui->qrcode_area->layout();
+        delete qrcodeWidget;
+    }
+}
+
+void WebSend::updateUrl(const QString& str)
+{
+    url=str;
+}
+
+WebSend::~WebSend()
 {
     delete ui;
 }
 
-void websend::on_pushButton_clicked()
+void WebSend::on_pushButton_clicked()
 {
     QString path=QFileDialog::getOpenFileName(this,"打开文件","./");
     ui->lineEdit->setText(path);
-    _str=path.toUtf8();
-
+    url=path;
 }
 
-void websend::paintEvent(QPaintEvent *event)
+
+void WebSend::on_pushButton_2_clicked()
 {
-    QPainter paint(this);
-    QBrush brush(Qt::black);
-    paint.setBrush(brush);
-    QRcode* mqrcode=QRcode_encodeString(_str.data(),0,QR_ECLEVEL_Q,QR_MODE_8,true);
-    if(mqrcode!=NULL){
-        this->_size=(this->width()-50)/mqrcode->width;
-        this->_margin=(this->width()/2)-(mqrcode->width*_size)/2;
-        unsigned char* poin=mqrcode->data;
-        for(int x=0;x<mqrcode->width;x++){
-            for(int y=0;y<mqrcode->width;y++){
-                if(*poin &1){
-                    QRectF r(x*_size+_margin,y*_size+_margin,_size,_size);
-                    paint.drawRect(r);
-                }
-                poin++;
-            }
-        }
+    if(url.isEmpty()){
+        QMessageBox::critical(this,"错误","请选择文件");
     }
+    removeOld();
+    havaQrcode=true;
+    QVBoxLayout *layout=new QVBoxLayout(this);
+    qrcodeWidget=new QrcodeWidget(this);
+    qrcodeWidget->setUrl(url);
+    layout->addWidget(qrcodeWidget);
+    ui->qrcode_area->setLayout(layout);
+    update();
 }
 

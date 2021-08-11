@@ -3,37 +3,47 @@
 #include <QString>
 #include <QPainter>
 #include <QBrush>
+#include <QLayout>
 
-webreceive::webreceive(QWidget *parent) :
+WebReceive::WebReceive(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::webreceive)
+    ui(new Ui::webreceive),havaQrcode(false)
 {
     ui->setupUi(this);
     setWindowTitle("接收文件");
-    _str="aaa";
+    url=ui->comboBox->itemText(0);
+    connect(ui->comboBox,&QComboBox::currentTextChanged,this,&WebReceive::updateUrl);
 }
 
-webreceive::~webreceive()
+void WebReceive::removeOld()
+{
+    if(havaQrcode){
+        delete ui->qrcode_area->layout();
+        delete qrcodeWidget;
+    }
+}
+
+void WebReceive::updateUrl(const QString &str)
+{
+    url=str;
+}
+
+
+WebReceive::~WebReceive()
 {
     delete ui;
 }
 
-void webreceive::paintEvent(QPaintEvent *event)
+
+void WebReceive::on_pushButton_clicked()
 {
-    QPainter paint(this);
-    QBrush brush(Qt::black);
-    paint.setBrush(brush);
-    QRcode* mqrcode=QRcode_encodeString(_str.data(),0,QR_ECLEVEL_Q,QR_MODE_8,true);
-    this->_size=(this->width()-50)/mqrcode->width;
-    this->_margin=(this->width()/2)-(mqrcode->width*_size)/2;
-    unsigned char* poin=mqrcode->data;
-    for(int x=0;x<mqrcode->width;x++){
-        for(int y=0;y<mqrcode->width;y++){
-            if(*poin&1){
-                QRectF r(x*_size+_margin,y*_size+_margin,_size,_size);
-                paint.drawRect(r);
-            }
-            poin++;
-        }
-    }
+    removeOld();
+    havaQrcode=true;
+    QVBoxLayout *layout=new QVBoxLayout(this);
+    qrcodeWidget=new QrcodeWidget(this);
+    qrcodeWidget->setUrl(url);
+    layout->addWidget(qrcodeWidget);
+    ui->qrcode_area->setLayout(layout);
+    update();
 }
+

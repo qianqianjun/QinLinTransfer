@@ -71,13 +71,13 @@ MainUI::~MainUI(){
 }
 
 void MainUI::openTransferWindow(){
-    websend *webs=new websend();
+    WebSend *webs=new WebSend();
     webs->show();
 }
 
 void MainUI::openReceiverWindow()
 {
-    webreceive *webr=new webreceive();
+    WebReceive *webr=new WebReceive();
     webr->show();
 }
 
@@ -86,6 +86,5 @@ void MainUI::initWebPage()
 {
     connect(ui->sendbtn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
     connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
-    connect(ui->send,&QGroupBox::clicked,this,&MainUI::openTransferWindow);
 }
 
