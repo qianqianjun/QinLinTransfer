@@ -3,7 +3,6 @@ QT += core gui widgets network
 CONFIG += c++11
 
 SOURCES += \
-    aboutdialog.cpp \
     crypto.cpp \
     discoveryservice.cpp \
     filetransferdialog.cpp \
@@ -25,18 +24,30 @@ SOURCES += \
     qrencode/qrspec.c \
     qrencode/rsecc.c \
     qrencode/split.c \
-    selectfilesdialog.cpp \
     sendfilewindow.cpp \
-    sendtodialog.cpp \
     settings.cpp \
-    settingsdialog.cpp \
     trayicon.cpp \
     webreceive.cpp \
-    websend.cpp
-    util.cpp
+    websend.cpp \
+    util.cpp \
+    # start of httpserver and templeteengine
+    httpserver/httpglobal.cpp \
+    httpserver/httplistener.cpp \
+    httpserver/httpconnectionhandler.cpp \
+    httpserver/httpconnectionhandlerpool.cpp \
+    httpserver/httprequest.cpp \
+    httpserver/httpresponse.cpp \
+    httpserver/httpcookie.cpp \
+    httpserver/httprequesthandler.cpp \
+    httpserver/httpsession.cpp \
+    httpserver/httpsessionstore.cpp \
+    httpserver/staticfilecontroller.cpp \
+    templateengine/template.cpp \
+    templateengine/templateloader.cpp \
+    templateengine/templatecache.cpp
+    # end of httpserver and templeteengine
 
 HEADERS += \
-    aboutdialog.h \
     crypto.h \
     discoveryservice.h \
     filetransferdialog.h \
@@ -59,24 +70,34 @@ HEADERS += \
     qrencode/qrspec.h \
     qrencode/rsecc.h \
     qrencode/split.h \
-    selectfilesdialog.h \
     sendfilewindow.h \
-    sendtodialog.h \
     settings.h \
-    settingsdialog.h \
     trayicon.h \
     webreceive.h \
-    websend.h
-    util.h
+    websend.h \
+    util.h \
+    # start of httpserver and templeteengine
+    httpserver/httpglobal.h \
+    httpserver/httplistener.h \
+    httpserver/httpconnectionhandler.h \
+    httpserver/httpconnectionhandlerpool.h \
+    httpserver/httprequest.h \
+    httpserver/httpresponse.h \
+    httpserver/httpcookie.h \
+    httpserver/httprequesthandler.h \
+    httpserver/httpsession.h \
+    httpserver/httpsessionstore.h \
+    httpserver/staticfilecontroller.h\
+    templateengine/templateglobal.h \
+    templateengine/template.h \
+    templateengine/templateloader.h \
+    templateengine/templatecache.h
+    # end of httpserver and templeteengine
 
 FORMS += \
-    aboutdialog.ui \
     filetransferdialog.ui \
     mainui.ui \
-    selectfilesdialog.ui \
     sendfilewindow.ui \
-    sendtodialog.ui \
-    settingsdialog.ui \
     webreceive.ui \
     websend.ui
 
@@ -119,6 +140,10 @@ unix {
 
 QMAKE_INFO_PLIST = Info.plist
 
+
 DISTFILES += \
     image/4baa28a7a5c4097ccba3ad471ba529c0.png \
     image/ee529b5f885f3e0c0574cace9080536e.png
+
+OTHER_FILES += etc/* etc/static/*
+

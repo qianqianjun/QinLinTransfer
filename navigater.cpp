@@ -14,7 +14,6 @@ Navigater::Navigater(QStackedWidget* stackedWidget,QVector<NavigaterLabel*> menu
     }
     pages->setCurrentIndex(0);
     labels[0]->setStyleSheet("QLabel{background-color:rgb(200,101,102);}");
-
 }
 
 void Navigater::selected(int index){
