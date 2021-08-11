@@ -26,6 +26,10 @@ quint16 Settings::DiscoveryPort(){
     return QSettings().value("discoveryPort",52637).toUInt();
 }
 
+quint16 Settings::WebPort(){
+    return QSettings().value("webPort",3000).toUInt();
+}
+
 void Settings::setDeviceName(const QString &deviceName)
 {
     QSettings().setValue("deviceName", deviceName);
@@ -48,4 +52,9 @@ void Settings::setServerPort(quint16 port)
 
 void Settings::setDiscoveryPort(quint16 discoveryPort){
     QSettings().setValue("discoveryPort",discoveryPort);
+}
+
+void Settings::setWebPort(quint16 webPort)
+{
+    QSettings().setValue("webPort",webPort);
 }

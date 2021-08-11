@@ -7,6 +7,7 @@
 #include "navigater.h"
 #include "websend.h"
 #include "webreceive.h"
+#include <QDebug>
 
 //QHostAddress getLocalHostIP()
 //{
@@ -44,7 +45,14 @@ MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(
 
 // 构造函数需要的函数
 void MainUI::initUserInfo(){
-    ui->nickname_label->setText(Settings::deviceName());
+    QString str=Settings::deviceName();
+    int fontSize = fontMetrics().width(str);//获取字符串的像素大小
+    if( fontSize >=100 ) //比较
+    {
+        QString short_str = fontMetrics().elidedText( str, Qt::ElideRight, ui->nickname_label->width() );//返回一个带有省略号的字符串
+        ui->nickname_label->setText(short_str);       //重新设置label上的字符串
+    }
+    else ui->nickname_label->setText(Settings::deviceName());
     ui->port_label->setText(QString::number(Settings::serverPort()));
     QString ips;
     QStringList ipList=getLocalHostIP();
@@ -76,6 +84,7 @@ void MainUI::initSettingPage(){
     ui->set_download_path->setText(Settings::downloadPath());
     ui->set_discovery_port->setText(QString::number(Settings::DiscoveryPort()));
     ui->set_transfer_port->setText(QString::number(Settings::serverPort()));
+    ui->set_web_port->setText(QString::number(Settings::WebPort()));
     ui->set_visable_checkbox->setChecked(Settings::discoverable());
 
     connect(ui->set_save_btn,&QPushButton::clicked,this,&MainUI::settingSave);
@@ -95,6 +104,8 @@ void MainUI::settingSave(){
     if(tport=="" || tport.toInt()<0 || tport.toInt()>65535) wrongItems.push_back("传输端口");
     QString dport=ui->set_discovery_port->text();
     if(dport=="" || dport.toInt()<0 || dport.toInt()>65535) wrongItems.push_back("发现端口");
+    QString wport=ui->set_web_port->text();
+    if(dport=="" || wport.toInt()<0 || wport.toInt()>65535) wrongItems.push_back("web端口");
     if(ui->set_download_path->text()=="") wrongItems.push_back("下载路径");
 
     if(wrongItems.size()>0){
@@ -122,6 +133,11 @@ void MainUI::settingSave(){
         Settings::setDiscoveryPort(ui->set_discovery_port->text().toUInt());
         changeItems<<"发现端口";
     }
+    if(ui->set_web_port->text().toUInt()!=Settings::WebPort()){
+
+        Settings::setWebPort(ui->set_web_port->text().toUInt());
+        changeItems<<"web端口";
+    }
     if(ui->set_visable_checkbox->isChecked()!=Settings::discoverable()){
         Settings::setDiscoverable(ui->set_visable_checkbox->isChecked());
     }
@@ -144,6 +160,7 @@ void MainUI::settingCancle(){
     ui->set_devicename->setText(Settings::deviceName());
     ui->set_download_path->setText(Settings::downloadPath());
     ui->set_discovery_port->setText(QString::number(Settings::DiscoveryPort()));
+    ui->set_web_port->setText(QString::number(Settings::WebPort()));
     ui->set_transfer_port->setText(QString::number(Settings::serverPort()));
     ui->set_visable_checkbox->setChecked(Settings::discoverable());
     QMessageBox::information(nullptr,"提示信息","设置已还原！");
