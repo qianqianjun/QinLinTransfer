@@ -7,12 +7,13 @@ util::util()
 QString searchConfigFile(QString fileName)
 {
     QString binDir=QCoreApplication::applicationDirPath();
+    QString curDir=QDir::currentPath();
     QStringList searchList;
     searchList.append(binDir);
     searchList.append(binDir+"/etc");
     searchList.append(binDir+"/../etc");
-    searchList.append(binDir+"/../Demo1/etc"); // for development with shadow build (Linux)
-    searchList.append(binDir+"/../../Demo1/etc"); // for development with shadow build (Windows)
+    qDebug()<<"QString searchConfigFile(QString fileName) not use!";
+    searchList.append("/home/qianqianjun/CODE/CPP/QinLinTransfer/etc");
     searchList.append(QDir::rootPath()+"etc/opt");
     searchList.append(QDir::rootPath()+"etc");
 
@@ -34,4 +35,18 @@ QString searchConfigFile(QString fileName)
     }
     qFatal("Cannot find config file %s",qPrintable(fileName));
     return nullptr;
+}
+
+QStringList getLocalHostIP()
+{
+  QList<QHostAddress> AddressList = QNetworkInterface::allAddresses();
+  QStringList result;
+  foreach(QHostAddress address, AddressList){
+      if(address.protocol() == QAbstractSocket::IPv4Protocol &&
+         address != QHostAddress::Null &&
+         address != QHostAddress::LocalHost){
+          result.push_back(address.toString());
+      }
+  }
+  return result;
 }

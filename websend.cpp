@@ -1,15 +1,17 @@
 #include "websend.h"
 #include "ui_websend.h"
-#include <QFile>
-#include <websend.h>
-
-WebSend::WebSend(QWidget *parent) :
+WebSend::WebSend(WebServer*& webServer,QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::websend),havaQrcode(false)
+    ui(new Ui::websend),havaQrcode(false),webServer(webServer)
 {
     ui->setupUi(this);
     setWindowTitle("发送文件");
-    connect(ui->lineEdit,&QLineEdit::textEdited,this,&WebSend::updateUrl);
+    ui->lineEdit->setEnabled(false);
+
+    QStringList ips=getLocalHostIP();
+    for(int i=0;i<ips.size();i++){
+        ui->ip_combox->addItem(ips[i]);
+    }
 }
 
 void WebSend::removeOld()
@@ -20,11 +22,6 @@ void WebSend::removeOld()
     }
 }
 
-void WebSend::updateUrl(const QString& str)
-{
-    url=str;
-}
-
 WebSend::~WebSend()
 {
     delete ui;
@@ -33,23 +30,27 @@ WebSend::~WebSend()
 void WebSend::on_pushButton_clicked()
 {
     QString path=QFileDialog::getOpenFileName(this,"打开文件","./");
-    ui->lineEdit->setText(path);
-    url=path;
+    if(!path.isEmpty()){
+        ui->lineEdit->setText(path);
+        filePath=path;
+    }
 }
 
 
 void WebSend::on_pushButton_2_clicked()
 {
-    if(url.isEmpty()){
+    if(filePath.isEmpty()){
         QMessageBox::critical(this,"错误","请选择文件");
+        return;
     }
     removeOld();
     havaQrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
+    qDebug()<<"WebSend::on_pushButton_2_clicked() set port id not use!";
+    QString url=webServer->openSender(ui->ip_combox->currentText(),3000,filePath);
     qrcodeWidget->setUrl(url);
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);
     update();
 }
-

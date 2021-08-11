@@ -11,18 +11,20 @@
 #include <QWidget>
 #include "qrencode/qrencode.h"
 #include "qrcode.h"
-
+#include <webserver.h>
+#include <QFile>
+#include <util.h>
 
 namespace Ui {
 class websend;
 }
 
-class WebSend : public QWidget
+class WebSend: public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit WebSend(QWidget *parent = nullptr);
+    explicit WebSend(WebServer*& webServer,QWidget *parent = nullptr);
     void removeOld();
     void updateUrl(const QString& str);
     ~WebSend();
@@ -32,11 +34,11 @@ private slots:
     void on_pushButton_2_clicked();
 
 private:
-
     Ui::websend *ui;
-    QString url;
+    QString filePath;
     bool havaQrcode;
     QrcodeWidget* qrcodeWidget;
+    WebServer* webServer;
 };
 
 #endif // WEBSEND_H

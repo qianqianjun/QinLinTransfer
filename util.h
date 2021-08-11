@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDir>
 #include <QCoreApplication>
+#include <QNetworkInterface>
 typedef struct data{
     QString name;
     QString ip;
@@ -14,7 +15,7 @@ typedef struct data{
 }DeviceInfo;
 
 QString searchConfigFile(QString fileName);
-
+QStringList getLocalHostIP();
 class util
 {
 public:

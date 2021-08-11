@@ -7,6 +7,7 @@
 #include <httpserver/staticfilecontroller.h>
 #include <templateengine/templatecache.h>
 #include <QApplication>
+
 using namespace stefanfrings;
 
 // Controller
@@ -27,17 +28,22 @@ private:
     TemplateCache* templateCache;
     StaticFileController* staticFileController;
 public:
-    explicit RequestMapper(QObject* parent=nullptr);
+    explicit RequestMapper(QString confFile,QObject* parent=nullptr);
     void service(HttpRequest& request,HttpResponse& response);
+    void setStaicFileController(StaticFileController*& controller);
 };
 
 
 class WebServer:public QObject
 {
+    Q_OBJECT
+private:
+    QString fileName;
+    QString confFile;
 public:
-    explicit WebServer(QObject* parent=nullptr);
-    void openSender();
-    void openReceiver();
+    explicit WebServer(QString fileName,QObject* parent=nullptr);
+    QString openSender(QString ip,qint16 port,QString filePath);
+    QString openReceiver(QString ip,qint16 port);
     ~WebServer();
     // component
     RequestMapper* mapper;

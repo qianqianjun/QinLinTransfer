@@ -94,17 +94,7 @@ void TrayIcon::trayActivated(ActivationReason reason)
 
 void TrayIcon::openHttpserver()
 {
-    qDebug()<<"open httpserver!";
-    QString app_path=QApplication::applicationDirPath();
-    QString conf_path=app_path+"/etc/qilintransfer.ini";
-
-    QSettings* templateSettings=new QSettings(conf_path,QSettings::IniFormat,app);
-    templateSettings->beginGroup("templates");
-    TemplateCache* templateCache=new TemplateCache(templateSettings,app);
-
-    QSettings* fileSettings=new QSettings(conf_path,QSettings::IniFormat,app);
-    fileSettings->beginGroup("docroot");
-    StaticFileController* staticFileController=new StaticFileController(fileSettings,app);
+    qDebug()<<"open httpserver test";
 }
 
 void TrayIcon::showOnlineDeviceWindow(){
