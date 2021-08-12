@@ -41,7 +41,7 @@ void WebReceive::on_pushButton_clicked()
     havaQrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
-    qrcodeWidget->setUrl(url);
+    qrcodeWidget->setUrl("12345678912354324\SADASDZXC3RSDFCXVXCVCXVCXVHGASKDASDXZCASD");
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);
     update();
