@@ -6,9 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>385</width>
-    <height>490</height>
+    <width>395</width>
+    <height>512</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>380</width>
+    <height>512</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>395</width>
+    <height>512</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -36,7 +54,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>使用统一LAN下的手机扫码操作</string>
+            <string>请使用同一局域网下的设备扫描下面的接收二维码！</string>
            </property>
           </widget>
          </item>
@@ -80,23 +98,37 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox">
-           <item>
-            <property name="text">
-             <string>1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>2</string>
-            </property>
-           </item>
+          <widget class="QComboBox" name="ips_combox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="pushButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>生成二维码</string>
+            <string>接收码</string>
            </property>
           </widget>
          </item>
@@ -122,14 +154,20 @@
    <item>
     <widget class="QWidget" name="qrcode_area" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>350</width>
+       <height>350</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>350</width>
        <height>350</height>
       </size>
      </property>

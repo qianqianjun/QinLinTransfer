@@ -9,23 +9,23 @@
 #include "webreceive.h"
 #include <QDebug>
 
-QHostAddress getLocalHostIP()
-{
-  QList<QHostAddress> AddressList = QNetworkInterface::allAddresses();
-  QHostAddress result;
-  foreach(QHostAddress address, AddressList){
-      if(address.protocol() == QAbstractSocket::IPv4Protocol &&
-         address != QHostAddress::Null &&
-         address != QHostAddress::LocalHost){
-          if (address.toString().contains("127.0.")){
-            continue;
-          }
-          result = address;
-          break;
-      }
-  }
-  return result;
-}
+//QHostAddress getLocalHostIP()
+//{
+//  QList<QHostAddress> AddressList = QNetworkInterface::allAddresses();
+//  QHostAddress result;
+//  foreach(QHostAddress address, AddressList){
+//      if(address.protocol() == QAbstractSocket::IPv4Protocol &&
+//         address != QHostAddress::Null &&
+//         address != QHostAddress::LocalHost){
+//          if (address.toString().contains("127.0.")){
+//            continue;
+//          }
+//          result = address;
+//          break;
+//      }
+//  }
+//  return result;
+//}
 
 MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(parent),
     ui(new Ui::MainUI),discoverService(discoverService){
@@ -38,6 +38,9 @@ MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(
     manager->renderOnlinePage();
     connect(this->discoverService,&DiscoveryService::newHost,this->manager,&DeviceManager::updateDeviceList);
     initSettingPage();
+
+    QString fileName="qilintransfer.ini";
+    webServer=new WebServer(fileName,this);
 }
 
 // 构造函数需要的函数
@@ -51,7 +54,12 @@ void MainUI::initUserInfo(){
     }
     else ui->nickname_label->setText(Settings::deviceName());
     ui->port_label->setText(QString::number(Settings::serverPort()));
-    ui->ip_label->setText(getLocalHostIP().toString());
+    QString ips;
+    QStringList ipList=getLocalHostIP();
+    for(int i=0;i<ipList.size();i++){
+        ips+=ipList[i]+"\n";
+    }
+    ui->ip_label->setText(ips);
 }
 void MainUI::initialLeftMenu(){
     QVBoxLayout *layout=new QVBoxLayout();
@@ -175,20 +183,19 @@ MainUI::~MainUI(){
     delete ui;
     delete navigater;
     delete manager;
+    delete webServer;
 }
 
 // web传输界面需要的函数
 void MainUI::openTransferWindow(){
-    WebSend *webs=new WebSend();
+    WebSend *webs=new WebSend(webServer);
     webs->show();
 }
 void MainUI::openReceiverWindow()
 {
-    WebReceive *webr=new WebReceive();
+    WebReceive *webr=new WebReceive(webServer);
     webr->show();
 }
-
-
 
 // 外部调用的函数
 void MainUI::setPageIndex(int index){

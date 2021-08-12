@@ -1,18 +1,16 @@
 #include "webreceive.h"
 #include "ui_webreceive.h"
-#include <QString>
-#include <QPainter>
-#include <QBrush>
-#include <QLayout>
 
-WebReceive::WebReceive(QWidget *parent) :
+WebReceive::WebReceive(WebServer*& webServer,QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::webreceive),havaQrcode(false)
+    ui(new Ui::webreceive),havaQrcode(false),webServer(webServer)
 {
     ui->setupUi(this);
     setWindowTitle("接收文件");
-    url=ui->comboBox->itemText(0);
-    connect(ui->comboBox,&QComboBox::currentTextChanged,this,&WebReceive::updateUrl);
+    QStringList ips=getLocalHostIP();
+    for(int i=0;i<ips.size();i++){
+        ui->ips_combox->addItem(ips[i]);
+    }
 }
 
 void WebReceive::removeOld()
@@ -22,12 +20,6 @@ void WebReceive::removeOld()
         delete qrcodeWidget;
     }
 }
-
-void WebReceive::updateUrl(const QString &str)
-{
-    url=str;
-}
-
 
 WebReceive::~WebReceive()
 {
@@ -41,7 +33,10 @@ void WebReceive::on_pushButton_clicked()
     havaQrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
-    qrcodeWidget->setUrl("12345678912354324\SADASDZXC3RSDFCXVXCVCXVCXVHGASKDASDXZCASD");
+
+    QString url=webServer->openReceiver(ui->ips_combox->currentText(),Settings::WebPort());
+    qrcodeWidget->setUrl(url);
+
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);
     update();

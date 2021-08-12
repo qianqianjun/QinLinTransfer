@@ -44,7 +44,8 @@ SOURCES += \
     httpserver/staticfilecontroller.cpp \
     templateengine/template.cpp \
     templateengine/templateloader.cpp \
-    templateengine/templatecache.cpp
+    templateengine/templatecache.cpp \
+    webserver.cpp
     # end of httpserver and templeteengine
 
 HEADERS += \
@@ -91,7 +92,8 @@ HEADERS += \
     templateengine/templateglobal.h \
     templateengine/template.h \
     templateengine/templateloader.h \
-    templateengine/templatecache.h
+    templateengine/templatecache.h \
+    webserver.h
     # end of httpserver and templeteengine
 
 FORMS += \

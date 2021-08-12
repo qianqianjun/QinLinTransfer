@@ -11,6 +11,7 @@
 #include <QNetworkInterface>
 #include <discoveryservice.h>
 #include <settings.h>
+#include <webserver.h>
 namespace Ui {
 class MainUI;
 }
@@ -36,8 +37,10 @@ private:
     Navigater* navigater;
     Ui::MainUI *ui;
     DeviceManager* manager;
-    void initWebPage();
     DiscoveryService* discoverService;
+    WebServer* webServer;
+
+    void initWebPage();
     void initialLeftMenu();
     void initUserInfo();
     void initSettingPage();
