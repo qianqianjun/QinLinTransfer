@@ -9,24 +9,6 @@
 #include "webreceive.h"
 #include <QDebug>
 
-//QHostAddress getLocalHostIP()
-//{
-//  QList<QHostAddress> AddressList = QNetworkInterface::allAddresses();
-//  QHostAddress result;
-//  foreach(QHostAddress address, AddressList){
-//      if(address.protocol() == QAbstractSocket::IPv4Protocol &&
-//         address != QHostAddress::Null &&
-//         address != QHostAddress::LocalHost){
-//          if (address.toString().contains("127.0.")){
-//            continue;
-//          }
-//          result = address;
-//          break;
-//      }
-//  }
-//  return result;
-//}
-
 MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(parent),
     ui(new Ui::MainUI),discoverService(discoverService){
     ui->setupUi(this);
@@ -38,22 +20,21 @@ MainUI::MainUI(DiscoveryService* discoverService,QWidget *parent) : QMainWindow(
     manager->renderOnlinePage();
     connect(this->discoverService,&DiscoveryService::newHost,this->manager,&DeviceManager::updateDeviceList);
     initSettingPage();
-
-    QString fileName="qilintransfer.ini";
-    webServer=new WebServer(fileName,this);
+    webServer=new WebServer(this);
 }
 
 // 构造函数需要的函数
 void MainUI::initUserInfo(){
     QString str=Settings::deviceName();
-    int fontSize = fontMetrics().width(str);//获取字符串的像素大小
-    if( fontSize >=100 ) //比较
-    {
-        QString short_str = fontMetrics().elidedText( str, Qt::ElideRight, ui->nickname_label->width() );//返回一个带有省略号的字符串
-        ui->nickname_label->setText(short_str);       //重新设置label上的字符串
+    int fontSize = fontMetrics().horizontalAdvance(str);
+    if( fontSize >=100 ){
+        QString short_str = fontMetrics().elidedText( str, Qt::ElideRight, ui->nickname_label->width() );
+        ui->nickname_label->setText(short_str);
     }
     else ui->nickname_label->setText(Settings::deviceName());
+
     ui->port_label->setText(QString::number(Settings::serverPort()));
+
     QString ips;
     QStringList ipList=getLocalHostIP();
     for(int i=0;i<ipList.size();i++){
@@ -122,7 +103,13 @@ void MainUI::settingSave(){
     QStringList changeItems;
     if(ui->set_devicename->text()!=Settings::deviceName()){
         Settings::setDeviceName(ui->set_devicename->text());
-        ui->nickname_label->setText(Settings::deviceName());
+        QString str=Settings::deviceName();
+        int fontSize = fontMetrics().horizontalAdvance(str);//获取字符串的像素大小
+        if( fontSize >=100 ){
+            QString short_str = fontMetrics().elidedText( str, Qt::ElideRight, ui->nickname_label->width() );
+            ui->nickname_label->setText(short_str);
+        }
+        else ui->nickname_label->setText(Settings::deviceName());
     }
     if(ui->set_transfer_port->text().toUInt()!=Settings::serverPort()){
         Settings::setServerPort(ui->set_transfer_port->text().toUInt());
@@ -170,7 +157,7 @@ void MainUI::chooseDownloadDir(){
     if(path==""){
         path=QStandardPaths::DownloadLocation;
     }
-    QString dir=QFileDialog::getExistingDirectory(this,"",path);
+    QString dir=QFileDialog::getExistingDirectory(this,"选择下载目录",path);
     if(!dir.isEmpty()){
         ui->set_download_path->setText(dir);
     }

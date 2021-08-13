@@ -142,8 +142,8 @@ unix {
 
 QMAKE_INFO_PLIST = Info.plist
 
-
 DISTFILES += \
+    etc/templates/upload.tpl \
     image/4baa28a7a5c4097ccba3ad471ba529c0.png \
     image/ee529b5f885f3e0c0574cace9080536e.png
 

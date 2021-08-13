@@ -6,6 +6,8 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QNetworkInterface>
+#include <QSettings>
+#include <settings.h>
 typedef struct data{
     QString name;
     QString ip;
@@ -16,6 +18,7 @@ typedef struct data{
 
 QString searchConfigFile(QString fileName);
 QStringList getLocalHostIP();
+QSettings* getSettings(QString group,QObject* parent);
 class util
 {
 public:

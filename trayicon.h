@@ -26,7 +26,5 @@ private:
 private slots:
     void openDownloadFolder(); // 点击下载目录执行操作
     void exitApplication(); // 点击退出执行操作
-    // 当被激活时，如果是被双击激活，则直接打开发送文件功能
     void trayActivated(QSystemTrayIcon::ActivationReason reason);
-    void openHttpserver();
 };

@@ -18,8 +18,6 @@ TrayIcon::TrayIcon(QApplication*& a,QObject *parent) : QSystemTrayIcon(parent),a
     QIcon openDownloadFolderIcon(":/icons/open_download_folder.png");
     QIcon settingsIcon(":/icons/settings.png");
     QIcon exitIcon(":/icons/exit.png");
-    // test code
-    QIcon testIcon(":/icons/about.png");
     if (QSysInfo::productType() == "osx" || QSysInfo::productType() == "macos")
         setIcon(appMaskIcon);
     else
@@ -36,10 +34,6 @@ TrayIcon::TrayIcon(QApplication*& a,QObject *parent) : QSystemTrayIcon(parent),a
     action = menu.addAction(settingsIcon, "设置");
     connect(action, &QAction::triggered, this, &TrayIcon::showSettingWindow);
     menu.addSeparator();
-
-    action = menu.addAction(testIcon,"测试");
-    connect(action,&QAction::triggered,this,&TrayIcon::openHttpserver);
-
     action = menu.addAction(exitIcon, "退出");
     connect(action, &QAction::triggered, this, &TrayIcon::exitApplication);
     setContextMenu(&menu);
@@ -90,11 +84,6 @@ void TrayIcon::trayActivated(ActivationReason reason)
     if (reason == DoubleClick){
         this->showOnlineDeviceWindow();
     }
-}
-
-void TrayIcon::openHttpserver()
-{
-    qDebug()<<"open httpserver test";
 }
 
 void TrayIcon::showOnlineDeviceWindow(){

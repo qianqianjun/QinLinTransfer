@@ -1,12 +1,10 @@
 #include "webserver.h"
 
 
-RequestMapper::RequestMapper(QString confFile,QObject *parent):HttpRequestHandler(parent){
-    QSettings* templeteSettings=new QSettings(confFile,QSettings::IniFormat,this);
-    templeteSettings->beginGroup("templates");
+RequestMapper::RequestMapper(QObject *parent):HttpRequestHandler(parent){
+    QSettings* templeteSettings=getSettings("templates",this);
     templateCache=new TemplateCache(templeteSettings,this);
-    QSettings* fileSettings=new QSettings(confFile,QSettings::IniFormat,this);
-    fileSettings->beginGroup("static");
+    QSettings* fileSettings=getSettings("static",this);
     staticFileController=new StaticFileController(fileSettings,this);
 }
 
@@ -35,33 +33,45 @@ void FileUploadController::service(HttpRequest &request, HttpResponse &response)
     if (request.getParameter("action")=="show")
     {
         QTemporaryFile* file=request.getUploadedFile("data");
+        QString fileName=request.getParameter("filename");
         if (file){
-            long totalSize=0;
-            while (!file->atEnd() && !file->error())
-            {
-                QByteArray buffer=file->read(65536);
-                totalSize+=buffer.size();
+            QString timestrap=QDateTime::currentDateTime().toString("yyyy-MM-dd-hh.mm.ss_");
+            QString storeName=Settings::downloadPath()+QDir::separator() + timestrap+fileName;
+            QFile* storeFile=new QFile(storeName,this);
+
+            if(storeFile->open(QIODevice::WriteOnly)){
+                while (!file->atEnd() && !file->error()){
+                    QByteArray buffer=file->read(65536);
+                    storeFile->write(buffer);
+                }
             }
-            response.write(QString::number(totalSize).toUtf8());
+            storeFile->close();
+            storeFile->deleteLater();
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Settings::downloadPath()));
+
+            QJsonObject responseText;
+            responseText.insert("ok", true);
+            responseText.insert("msg", QString("文件已保存在%1%2").arg(storeName).arg("！"));
+            response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
         }else{
-            response.write("-1");
+            QJsonObject responseText;
+            responseText.insert("ok", false);
+            responseText.insert("msg","文件上传失败！");
+            response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
         }
     }
     else{
-        t.setCondition("finish",false);
         response.write(t.toUtf8(),true);
     }
 }
 
 
-WebServer::WebServer(QString fileName,QObject *parent):QObject(parent),fileName(fileName)
+WebServer::WebServer(QObject *parent):QObject(parent)
 {
-    confFile=searchConfigFile(fileName);
     // request mapper
-    mapper=new RequestMapper(confFile,this);
+    mapper=new RequestMapper(this);
     // listener
-    QSettings* listenSetings=new QSettings(confFile,QSettings::IniFormat,this);
-    listenSetings->beginGroup("listener");
+    QSettings* listenSetings=getSettings("listener",this);
     listener=new HttpListener(listenSetings,mapper,this);
 }
 
@@ -71,8 +81,7 @@ QString WebServer::openSender(QString ip,qint16 port,QString filePath)
     QString staticPath=fileInfo.absolutePath();
     QString resource=fileInfo.fileName();
 
-    QSettings* fileSettings=new QSettings(confFile,QSettings::IniFormat,this);
-    fileSettings->beginGroup("static");
+    QSettings* fileSettings=getSettings("static",this);
     fileSettings->setValue("path",staticPath);
     StaticFileController* staticFileController=new StaticFileController(fileSettings,this);
     mapper->setStaicFileController(staticFileController);

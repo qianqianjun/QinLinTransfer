@@ -7,6 +7,11 @@
 #include <httpserver/staticfilecontroller.h>
 #include <templateengine/templatecache.h>
 #include <QApplication>
+#include <QDateTime>
+#include <QUrl>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QDesktopServices>
 
 using namespace stefanfrings;
 
@@ -28,7 +33,7 @@ private:
     TemplateCache* templateCache;
     StaticFileController* staticFileController;
 public:
-    explicit RequestMapper(QString confFile,QObject* parent=nullptr);
+    explicit RequestMapper(QObject* parent=nullptr);
     void service(HttpRequest& request,HttpResponse& response);
     void setStaicFileController(StaticFileController*& controller);
 };
@@ -37,11 +42,8 @@ public:
 class WebServer:public QObject
 {
     Q_OBJECT
-private:
-    QString fileName;
-    QString confFile;
 public:
-    explicit WebServer(QString fileName,QObject* parent=nullptr);
+    explicit WebServer(QObject* parent=nullptr);
     QString openSender(QString ip,qint16 port,QString filePath);
     QString openReceiver(QString ip,qint16 port);
     ~WebServer();

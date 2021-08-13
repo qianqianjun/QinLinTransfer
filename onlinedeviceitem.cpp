@@ -70,8 +70,7 @@ void DeviceManager::freeOldWidget(){
 
 void DeviceManager::addConnectionAction(){
     for(int i=0;i<this->onlineDeviceItems.size();i++){
-        connect(this->onlineDeviceItems[i]->checkbox,
-                &QCheckBox::stateChanged,this,&DeviceManager::updateSelectedDevice);
+        connect(this->onlineDeviceItems[i]->checkbox,&QCheckBox::clicked,this,&DeviceManager::updateSelectedDevice);
     }
 }
 
@@ -94,6 +93,7 @@ void DeviceManager::selectAllDevices(){
             this->onlineDeviceItems[i]->checkbox->setCheckState(Qt::Checked);
         }
     }
+    updateSelectedDevice();
 }
 
 void DeviceManager::multiTransfer(){
@@ -118,8 +118,6 @@ QString ipv4Parser(QString str){
     return str;
 }
 void DeviceManager::updateDeviceList(const QString &deviceName, const QHostAddress &addr, quint16 port){
-//    qDebug()<<deviceName;
-//    qDebug()<<onlineInfos.size();
     if(port==0){
         for(int i=0;i<onlineInfos.size();i++){
             if(onlineInfos[i].addr.isEqual(addr)){
