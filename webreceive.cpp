@@ -33,8 +33,10 @@ void WebReceive::on_pushButton_clicked()
     havaQrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
+
     QString url=webServer->openReceiver(ui->ips_combox->currentText(),Settings::WebPort());
     qrcodeWidget->setUrl(url);
+
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);
     update();

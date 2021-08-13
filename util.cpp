@@ -57,7 +57,7 @@ QString searchConfigFile(QString fileName)
     searchList.append(binDir+"/etc");
     searchList.append(binDir+"/../etc");
     qDebug()<<"QString searchConfigFile(QString fileName) not use!";
-    searchList.append("/home/qianqianjun/CODE/CPP/QinLinTransfer/etc");
+    searchList.append("/Users/xueyucheng/Qt/QtProjects/QinLinTransfer/etc");
     searchList.append(QDir::rootPath()+"etc/opt");
     searchList.append(QDir::rootPath()+"etc");
 
