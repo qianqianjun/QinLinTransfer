@@ -9,6 +9,9 @@ util::util()
  * @param group
  * @return
  */
+
+
+
 QSettings* getSettings(QString group,QObject* parent){
     if(group=="listener"){
         QSettings* set=new QSettings(parent);

@@ -2,7 +2,7 @@
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include "discoveryservice.h"
-#include "filetransferserver.h"
+#include "server.h"
 #include "mainui.h"
 #include "templateengine/templatecache.h"
 #include "httpserver/staticfilecontroller.h"
@@ -19,7 +19,7 @@ public slots:
 private:
     QApplication* app;
     QMenu menu;
-    FileTransferServer server;
+    Server fileTransferServer;
     DiscoveryService discoveryService;
     MainUI* mainui;
     bool haveUi;

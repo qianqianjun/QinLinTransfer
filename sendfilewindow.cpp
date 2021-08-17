@@ -1,15 +1,34 @@
 #include "sendfilewindow.h"
 #include "ui_sendfilewindow.h"
-#include <QDebug>
+
 SendFileWindow::SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent):
     QDialog(parent),ui(new Ui::sendFileWindow),targetDevices(infos){
     ui->setupUi(this);
+    setWindowFlag(Qt::WindowStaysOnTopHint);
+    setAcceptDrops(true);
     initTargetDevice();
     this->manager=new SendFileManager(targetDevices,this);
     initSelectedFileArea();
     connect(ui->send_btn,&QPushButton::clicked,this,&SendFileWindow::sendFile);
     connect(&socketTimeoutTimer, &QTimer::timeout, this, &SendFileWindow::socketTimeout);
     socketTimeoutTimer.setSingleShot(true);
+}
+
+void SendFileWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void SendFileWindow::dropEvent(QDropEvent *event)
+{
+    if(event->mimeData()->hasUrls()){
+        foreach(const QUrl &url,event->mimeData()->urls()){
+            QFileInfo info(url.toLocalFile());
+            this->manager->addFile(info.filePath());
+            renderselectedFiles();
+        }
+    }
 }
 
 void SendFileWindow::initTargetDevice(){
@@ -83,24 +102,25 @@ void SendFileWindow::socketTimeout(){
     setCursor(QCursor(Qt::ArrowCursor));
 }
 
-void SendFileWindow::socketErrorOccurred(){
-    qDebug()<<"SendFileWindow::socketErrorOccurred --start";
-    socketTimeoutTimer.stop();
-    socket->disconnectFromHost();
-    socket->close();
-    socket->deleteLater();
-    QMessageBox::critical(this, QApplication::applicationName(), socket->errorString());
-    ui->send_btn->setEnabled(true);
-    setCursor(QCursor(Qt::ArrowCursor));
-    qDebug()<<"SendFileWindow::socketErrorOccurred --end";
-}
+//void SendFileWindow::socketErrorOccurred(){
+//    qDebug()<<"SendFileWindow::socketErrorOccurred --start";
+//    socketTimeoutTimer.stop();
+//    socket->disconnectFromHost();
+//    socket->close();
+//    socket->deleteLater();
+//    QMessageBox::critical(this, QApplication::applicationName(), socket->errorString());
+//    ui->send_btn->setEnabled(true);
+//    setCursor(QCursor(Qt::ArrowCursor));
+//    qDebug()<<"SendFileWindow::socketErrorOccurred --end";
+//}
 
 void SendFileWindow::socketConnected(){
     socketTimeoutTimer.stop();
-    FileTransferSender *sender = new FileTransferSender(nullptr, socket, this->manager->files);
-    FileTransferDialog *d = new FileTransferDialog(nullptr, sender);
-    d->setAttribute(Qt::WA_DeleteOnClose);
-    d->show();
+
+    SenderContext *sender=new SenderContext(socket,this->manager->files,nullptr);
+    ProgressBarUI *progressBar=new ProgressBarUI(sender,nullptr);
+    progressBar->setAttribute(Qt::WA_DeleteOnClose);
+    progressBar->show();
     done(Accepted);
 }
 
@@ -112,7 +132,7 @@ void SendFileWindow::sendFile(){
         // 这里要遍历所有的目标设备，进行socket连接，发送数据。
         socket = new QTcpSocket(this);
         connect(socket, &QTcpSocket::connected, this, &SendFileWindow::socketConnected);
-        connect(socket,&QTcpSocket::errorOccurred,this, &SendFileWindow::socketErrorOccurred);
+        //connect(socket,&QTcpSocket::errorOccurred,this, &SendFileWindow::socketErrorOccurred);
         socket->connectToHost(targetDevices[0].addr, targetDevices[0].port);
         ui->send_btn->setEnabled(false);
         setCursor(QCursor(Qt::WaitCursor));
@@ -149,7 +169,8 @@ void SendFileManager::addFile(const QString &filename){
     }
     files.append(fp);
     QFile* file=fp.data();
-    fileInfos.append(FileInfo(file->fileName().split("/").last(),parseSize(file->size())));
+    QFileInfo Info(*file);
+    fileInfos.append(FileInfo(Info.fileName(),parseSize(Info.size())));
 }
 QString SendFileManager::parseSize(qint64 size){
     QStringList units;

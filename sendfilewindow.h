@@ -10,8 +10,12 @@
 #include <QTcpSocket>
 #include <QTimer>
 #include <util.h>
-#include <filetransfersender.h>
-#include <filetransferdialog.h>
+#include <context.h>
+#include <progressBarui.h>
+#include <QDebug>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 
 namespace Ui {
 class sendFileWindow;
@@ -46,6 +50,9 @@ private:
     SendFileManager* manager;
     QTcpSocket *socket;
     QTimer socketTimeoutTimer;
+protected:
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 public:
     explicit SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent = nullptr);
     ~SendFileWindow();
@@ -54,7 +61,7 @@ public:
     void renderselectedFiles();
 private slots:
     void socketConnected();
-    void socketErrorOccurred();
+    // void socketErrorOccurred();
     void socketTimeout();
     void sendFile();
 };

@@ -43,14 +43,13 @@ TrayIcon::TrayIcon(QApplication*& a,QObject *parent) : QSystemTrayIcon(parent),a
     connect(this, &QSystemTrayIcon::activated, this, &TrayIcon::trayActivated);
 
     // 启动传送服务器，监听一个端口，这个端口默认是随机的。FileTransferServer类型，成员变量
-    server.start(); // 检查端口是否被占用，设置当新的TCP连接建立之后，执行的操作。
-    addrPortAction->setText("端口: " + QString::number(server.port()));
+    fileTransferServer.bindListen(); // 检查端口是否被占用，设置当新的TCP连接建立之后，执行的操作。
+    addrPortAction->setText("端口: " + QString::number(fileTransferServer.port()));
 
     this->haveUi=true;
     // 启动邻居发现服务
-    discoveryService.start(server.port());
-    DiscoveryService* dp=&discoveryService;
-    mainui=new MainUI(dp);
+    discoveryService.start(fileTransferServer.port());
+    mainui=new MainUI(&discoveryService);
     mainui->show();
     connect(mainui,&MainUI::closeWindow,this,&TrayIcon::onWindowClose);
     // 提示信息，不重要

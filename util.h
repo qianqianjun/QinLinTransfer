@@ -25,4 +25,17 @@ public:
     util();
 };
 
+typedef enum S {
+    TRANSFER_KEY,
+    TRANSFER_META,
+    TRANSFER_DATA,
+    TRANSFER_FINISH
+}State;
+
+typedef struct metadata{
+    QString filename;
+    quint64 size;
+} FileMetadata;
+
+
 #endif // UTIL_H

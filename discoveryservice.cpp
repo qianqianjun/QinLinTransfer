@@ -14,7 +14,7 @@ DiscoveryService::DiscoveryService(QObject *parent) : QObject(parent)
 
 void DiscoveryService::start(quint16 serverPort)
 {
-    this->serverPort = serverPort;
+    this->fileTransferPort = serverPort;
     if (!socket.bind(QHostAddress::Any, DISCOVERY_PORT)) {
         QMessageBox::warning(nullptr, QApplication::applicationName(),
                              QString("无法监听端口 %1.\n你的设备无法被发现")
@@ -41,7 +41,7 @@ void DiscoveryService::sendInfo(const QHostAddress &addr, quint16 port)
     obj.insert("request", false);
     obj.insert("device_name", Settings::deviceName());
     obj.insert("device_type", QSysInfo::productType());
-    obj.insert("port", Settings::discoverable() ? serverPort : 0);
+    obj.insert("port", Settings::discoverable() ? fileTransferPort : 0);
     socket.writeDatagram(QJsonDocument(obj).toJson(QJsonDocument::Compact), addr, port);
 }
 

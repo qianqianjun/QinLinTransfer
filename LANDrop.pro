@@ -3,17 +3,14 @@ QT += core gui widgets network
 CONFIG += c++11
 
 SOURCES += \
+    context.cpp \
     crypto.cpp \
     discoveryservice.cpp \
-    filetransferdialog.cpp \
-    filetransferreceiver.cpp \
-    filetransfersender.cpp \
-    filetransferserver.cpp \
-    filetransfersession.cpp \
     main.cpp \
     mainui.cpp \
     navigater.cpp \
     onlinedeviceitem.cpp \
+    progressBarui.cpp \
     qrcode.cpp \
     qrencode/bitstream.c \
     qrencode/mask.c \
@@ -25,6 +22,7 @@ SOURCES += \
     qrencode/rsecc.c \
     qrencode/split.c \
     sendfilewindow.cpp \
+    server.cpp \
     settings.cpp \
     trayicon.cpp \
     webreceive.cpp \
@@ -49,16 +47,13 @@ SOURCES += \
     # end of httpserver and templeteengine
 
 HEADERS += \
+    context.h \
     crypto.h \
     discoveryservice.h \
-    filetransferdialog.h \
-    filetransferreceiver.h \
-    filetransfersender.h \
-    filetransferserver.h \
-    filetransfersession.h \
     mainui.h \
     navigater.h \
     onlinedeviceitem.h \
+    progressBarui.h \
     qrcode.h \
     qrencode/bitstream.h \
     qrencode/config.h \
@@ -72,6 +67,7 @@ HEADERS += \
     qrencode/rsecc.h \
     qrencode/split.h \
     sendfilewindow.h \
+    server.h \
     settings.h \
     trayicon.h \
     webreceive.h \
@@ -97,8 +93,8 @@ HEADERS += \
     # end of httpserver and templeteengine
 
 FORMS += \
-    filetransferdialog.ui \
     mainui.ui \
+    progressBarui.ui \
     sendfilewindow.ui \
     webreceive.ui \
     websend.ui

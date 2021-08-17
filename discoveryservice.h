@@ -17,7 +17,7 @@ private:
         DISCOVERY_PORT = 52637
     };
     QUdpSocket socket;
-    quint16 serverPort;
+    quint16 fileTransferPort;
     void sendInfo(const QHostAddress &addr, quint16 port);
     bool isLocalAddress(const QHostAddress &addr);
     QList<QHostAddress> broadcastAddresses();
