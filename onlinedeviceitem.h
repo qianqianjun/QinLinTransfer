@@ -50,12 +50,12 @@ private:
     QVector<DeviceInfo> selectedDevices;
     QVector<OnlineDeviceItem*> onlineDeviceItems;
     Title* title;
-    QToolButton* multiTransferBtn;
-    QToolButton* selectAllBtn;
+    QPushButton* multiTransferBtn;
+    QPushButton* selectAllBtn;
     QWidget* topWidget;
     QTimer discoveryTimer;
 public:
-    DeviceManager(QToolButton* mult_transfer_btn,QToolButton* select_all_btn,QWidget*& topWidget,
+    DeviceManager(QPushButton* mult_transfer_btn,QPushButton* select_all_btn,QWidget*& topWidget,
                   QObject* parent=nullptr);
     QVector<DeviceInfo> getSelectedDevices();
     void addConnectionAction();

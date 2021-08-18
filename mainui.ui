@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>823</width>
+    <width>923</width>
     <height>576</height>
    </rect>
   </property>
@@ -80,12 +80,20 @@
               <height>24</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <family>宋体</family>
+              <pointsize>11</pointsize>
+              <weight>75</weight>
+              <italic>false</italic>
+              <bold>true</bold>
+             </font>
+            </property>
             <property name="acceptDrops">
              <bool>false</bool>
             </property>
             <property name="styleSheet">
-             <string notr="true">font: 75 13pt &quot;黑体&quot;;
-color: rgb(0, 0, 0);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>谦谦君的Linux</string>
@@ -122,6 +130,11 @@ color: rgb(0, 0, 0);</string>
           </item>
           <item>
            <widget class="QLabel" name="ip_hint_label">
+            <property name="font">
+             <font>
+              <family>宋体</family>
+             </font>
+            </property>
             <property name="text">
              <string>LAN地址</string>
             </property>
@@ -129,6 +142,11 @@ color: rgb(0, 0, 0);</string>
           </item>
           <item>
            <widget class="QLabel" name="ip_label">
+            <property name="font">
+             <font>
+              <family>Times New Roman</family>
+             </font>
+            </property>
             <property name="text">
              <string>192.168.31.34</string>
             </property>
@@ -136,6 +154,11 @@ color: rgb(0, 0, 0);</string>
           </item>
           <item>
            <widget class="QLabel" name="port_label">
+            <property name="font">
+             <font>
+              <family>宋体</family>
+             </font>
+            </property>
             <property name="text">
              <string>监听端口：8080</string>
             </property>
@@ -222,9 +245,9 @@ color: rgb(0, 0, 0);</string>
             <number>5</number>
            </property>
            <item>
-            <widget class="QToolButton" name="select_all">
+            <widget class="QPushButton" name="select_all">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -241,16 +264,24 @@ color: rgb(0, 0, 0);</string>
                <height>24</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>宋体</family>
+              </font>
+             </property>
              <property name="text">
               <string>全选</string>
-             </property>
-             <property name="toolButtonStyle">
-              <enum>Qt::ToolButtonIconOnly</enum>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QToolButton" name="multi_transfer_btn">
+            <widget class="QPushButton" name="multi_transfer_btn">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimumSize">
               <size>
                <width>80</width>
@@ -262,6 +293,11 @@ color: rgb(0, 0, 0);</string>
                <width>80</width>
                <height>24</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>宋体</family>
+              </font>
              </property>
              <property name="text">
               <string>批量传送</string>
@@ -294,7 +330,7 @@ color: rgb(0, 0, 0);</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>703</width>
+             <width>798</width>
              <height>480</height>
             </rect>
            </property>
@@ -1038,8 +1074,8 @@ color: rgb(0, 0, 0);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>823</width>
-     <height>24</height>
+     <width>923</width>
+     <height>28</height>
     </rect>
    </property>
   </widget>

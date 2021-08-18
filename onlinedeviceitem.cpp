@@ -7,11 +7,31 @@
 OnlineDeviceItem::OnlineDeviceItem(DeviceInfo info,QWidget *parent) : QWidget(parent),info(info)
 {
     QHBoxLayout* layout=new QHBoxLayout(parent);
-    this->deviceName=new QLabel(info.name,this);
-    this->ip=new QLabel(info.ip,this);
-    this->port=new QLabel(QString::number(info.port),this);
-    this->btn=new QPushButton("传文件",this);
+
     this->checkbox=new QCheckBox(this);
+    this->checkbox->setMaximumWidth(40);
+
+    this->deviceName=new QLabel(this);
+    int fontSize = fontMetrics().horizontalAdvance(info.name);
+    if( fontSize >=280 ){
+        QString short_str = fontMetrics().elidedText(info.name, Qt::ElideRight, 300);
+        this->deviceName->setText(short_str);
+    }
+    else this->deviceName->setText(info.name);
+    this->deviceName->setMinimumWidth(300);
+    this->deviceName->setAlignment(Qt::AlignCenter);
+
+    this->ip=new QLabel(info.ip,this);
+    this->ip->setMaximumWidth(240);
+    this->ip->setAlignment(Qt::AlignCenter);
+
+    this->port=new QLabel(QString::number(info.port),this);
+    this->port->setMaximumWidth(100);
+    this->port->setAlignment(Qt::AlignCenter);
+
+    this->btn=new QPushButton("传文件",this);
+    this->btn->setMaximumWidth(120);
+
     layout->addWidget(this->checkbox);
     layout->addWidget(this->deviceName);
     layout->addWidget(this->ip);
@@ -36,15 +56,21 @@ void OnlineDeviceItem::openTransferWindow(){
 Title::Title(QVector<QString> heads,QWidget* parent):QWidget(parent),titles(heads){
     for(int i=0;i<heads.size();i++){
         this->labels.push_back(new QLabel(heads[i],this));
+        this->labels[i]->setAlignment(Qt::AlignHCenter);
     }
+    this->labels[0]->setMaximumWidth(40);
+    this->labels[4]->setMaximumWidth(120);
+    this->labels[3]->setMaximumWidth(100);
+    this->labels[2]->setMaximumWidth(240);
+    this->labels[1]->setMinimumWidth(300);
     QHBoxLayout* layout=new QHBoxLayout(parent);
     for(int i=0;i<labels.size();i++) layout->addWidget(labels[i]);
     this->setLayout(layout);
 }
 
 // DeviceManager 相关的函数实现
-DeviceManager::DeviceManager(QToolButton* multi_transfer_btn,
-                             QToolButton* select_all_btn,
+DeviceManager::DeviceManager(QPushButton* multi_transfer_btn,
+                             QPushButton* select_all_btn,
                              QWidget*& topWidget,
                              QObject* parent):QObject(parent),
     multiTransferBtn(multi_transfer_btn),
