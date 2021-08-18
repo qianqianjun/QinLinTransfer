@@ -116,21 +116,21 @@ unix {
     }
 
     binary.path = $$PREFIX/bin
-    binary.files = $$OUT_PWD/landrop
-    binary.extra = cp "$$OUT_PWD/LANDrop" "$$OUT_PWD/landrop"
+    binary.files = $$OUT_PWD/QiLinTransfer
+    binary.extra = cp "$$OUT_PWD/QiLinTransfer" "$$OUT_PWD/QiLinTransfer"
     binary.CONFIG = no_check_exist executable
 
     icon.path = $$PREFIX/share/icons/hicolor/scalable/apps
-    icon.files = $$OUT_PWD/landrop.svg
-    icon.extra = cp "$$PWD/icons/app.svg" "$$OUT_PWD/landrop.svg"
+    icon.files = $$OUT_PWD/QiLinTransfer.svg
+    icon.extra = cp "$$PWD/icons/app.svg" "$$OUT_PWD/QiLinTransfer.svg"
     icon.CONFIG = no_check_exist 
 
     desktop.path = $$PREFIX/share/applications
-    desktop.files = $$OUT_PWD/landrop.desktop
+    desktop.files = $$OUT_PWD/QiLinTransfer.desktop
     desktop.extra = \
-        cp "$$PWD/../misc/LANDrop.desktop" "$$OUT_PWD/landrop.desktop" && \
-        sed -i 's/Exec=LANDrop/Exec=landrop/g' "$$OUT_PWD/landrop.desktop" && \
-        sed -i 's/Icon=LANDrop/Icon=landrop/g' "$$OUT_PWD/landrop.desktop"
+        cp "$$PWD/../misc/QiLinTransfer.desktop" "$$OUT_PWD/QiLinTransfer.desktop" && \
+        sed -i 's/Exec=QiLinTransfer/Exec=QiLinTransfer/g' "$$OUT_PWD/QiLinTransfer.desktop" && \
+        sed -i 's/Icon=QiLinTransfer/Icon=QiLinTransfer/g' "$$OUT_PWD/QiLinTransfer.desktop"
     desktop.CONFIG = no_check_exist 
 
     INSTALLS += binary icon desktop

@@ -41,6 +41,7 @@ void ProgressBarUI::closeEvent(QCloseEvent *event){
 }
 
 void ProgressBarUI::response(int result){
+    confirmBoxTimer.stop();
     bool res=result==QMessageBox::Yes;
     // 这里是一个虚函数，Sender的实现没有意义
     // 如果同意接收，Receiver开始根据传输队列创建文件，不同意接收则触发结束信号
@@ -57,7 +58,6 @@ void ProgressBarUI::errorAppear(const QString &err){
     if(errored)
         return;
     errored=true;
-    qDebug()<<"run here!";
     if(isVisible()){
         informationBox=new QMessageBox(this);
         informationBox->setWindowTitle(QApplication::applicationName());

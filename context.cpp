@@ -204,7 +204,6 @@ void ReceiverContext::prepareReceiveNextFile(){
             savingFile->deleteLater();
             savingFile=nullptr;
         }
-        qDebug()<<fileName;
         savingFile=new QFile(fileName,this);
         if(!savingFile->open(QIODevice::WriteOnly)){
             emit raiseErrorMsg(QString("无法打开%1，请检查目录权限！").arg(fileName));
