@@ -16,6 +16,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QTimer>
 
 namespace Ui {
 class sendFileWindow;
@@ -50,6 +51,8 @@ private:
     SendFileManager* manager;
     QTcpSocket *socket;
     QTimer socketTimeoutTimer;
+    QTimer closeTimer;
+    QMessageBox hintBox;
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);

@@ -7,6 +7,7 @@
 #include <util.h>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QCloseEvent>
 namespace Ui {
 class Scheduler;
 }
@@ -18,7 +19,10 @@ private:
     Ui::Scheduler *ui;
     Context *context;
     bool errored;
+    int autoRefuse;
+    QTimer confirmBoxTimer;
     QMessageBox confirmBox;
+    QMessageBox* informationBox;
 private slots:
     void response(int result);
     void updateBar(double progress);
@@ -26,13 +30,17 @@ private slots:
     void openConfirmDialog(const QVector<FileMetadata> &metaData,quint64 totalSize,
                            const QString &deviceName,const QString &keyDigest);
     void printLog(const QString msg);
+    void autoPick();
 protected:
     void closeEvent(QCloseEvent* event);
 public:
     explicit ProgressBarUI(Context *context,QWidget *parent = nullptr);
     ~ProgressBarUI();
+public slots:
+    void transferFinish();
 signals:
     void transferInterruptedByUser();
+    void openNextTask();
 };
 
 #endif // PROGRESSBARUI_H

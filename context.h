@@ -60,7 +60,7 @@ protected:
     void handleReceivedData(const QByteArray& data);
 public:
     explicit SenderContext(QTcpSocket* socket,
-                           const QList<QSharedPointer<QFile>>& files,
+                           const QList<QSharedPointer<QFile>>& fileList,
                            QObject *parent = nullptr);
     void response(bool accept);
 };

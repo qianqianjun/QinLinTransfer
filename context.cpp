@@ -88,15 +88,16 @@ void Context::handleSocketError()
  * @param parent
  */
 SenderContext::SenderContext(QTcpSocket *socket,
-                             const QList<QSharedPointer<QFile>>& files,
-                             QObject *parent):Context(socket,parent),files(files){
+                             const QList<QSharedPointer<QFile>>& fileList,
+                             QObject *parent):Context(socket,parent),files(fileList){
     connect(socket,&QTcpSocket::bytesWritten,this,&SenderContext::writeByteToSocket);
-    foreach(QSharedPointer<QFile> file,files){
+    foreach(const QSharedPointer<QFile>& file,files){
         QString filename = QFileInfo(*file).fileName();
         quint64 size = static_cast<quint64>(file->size());
-
         totalSize += size;
         transferQueue.push_back({filename, size});
+        // 文件读指针移动到开头
+        file->seek(0);
     }
 }
 
@@ -262,7 +263,6 @@ void ReceiverContext::handleReceivedData(const QByteArray &data){
             }
         } catch (const std::exception &e) {
             emit raiseErrorMsg(e.what());
-            emit raiseEndSignal();
             return;
         }
         // 下面的信号和传送的UI界面进行关联，用户的操作将会被记录并传回到response函数中。

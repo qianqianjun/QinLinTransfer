@@ -2,9 +2,8 @@
 #include "ui_sendfilewindow.h"
 
 SendFileWindow::SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent):
-    QDialog(parent),ui(new Ui::sendFileWindow),targetDevices(infos){
+    QDialog(parent),ui(new Ui::sendFileWindow),targetDevices(infos),hintBox(this){
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowStaysOnTopHint);
     setAcceptDrops(true);
     initTargetDevice();
     this->manager=new SendFileManager(targetDevices,this);
@@ -100,6 +99,7 @@ void SendFileWindow::socketTimeout(){
     QMessageBox::critical(this, QApplication::applicationName(), "连接超时！");
     ui->send_btn->setEnabled(true);
     setCursor(QCursor(Qt::ArrowCursor));
+    sendFile();
 }
 
 //void SendFileWindow::socketErrorOccurred(){
@@ -116,12 +116,12 @@ void SendFileWindow::socketTimeout(){
 
 void SendFileWindow::socketConnected(){
     socketTimeoutTimer.stop();
-
     SenderContext *sender=new SenderContext(socket,this->manager->files,nullptr);
     ProgressBarUI *progressBar=new ProgressBarUI(sender,nullptr);
+    connect(progressBar,&ProgressBarUI::openNextTask,this,&SendFileWindow::sendFile);
+    connect(progressBar,&ProgressBarUI::transferInterruptedByUser,this,&SendFileWindow::close);
     progressBar->setAttribute(Qt::WA_DeleteOnClose);
     progressBar->show();
-    done(Accepted);
 }
 
 void SendFileWindow::sendFile(){
@@ -129,14 +129,23 @@ void SendFileWindow::sendFile(){
     if(this->manager->files.size()<=0){
         QMessageBox::critical(nullptr,"错误提示","请先选择要发送的文件！");
     }else{
-        // 这里要遍历所有的目标设备，进行socket连接，发送数据。
-        socket = new QTcpSocket(this);
-        connect(socket, &QTcpSocket::connected, this, &SendFileWindow::socketConnected);
-        //connect(socket,&QTcpSocket::errorOccurred,this, &SendFileWindow::socketErrorOccurred);
-        socket->connectToHost(targetDevices[0].addr, targetDevices[0].port);
-        ui->send_btn->setEnabled(false);
-        setCursor(QCursor(Qt::WaitCursor));
-        socketTimeoutTimer.start(5000);
+        if(!targetDevices.empty()){
+            DeviceInfo& info=targetDevices.front();
+            socket = new QTcpSocket(this);
+            connect(socket, &QTcpSocket::connected, this, &SendFileWindow::socketConnected);
+            socket->connectToHost(info.addr, info.port);
+            ui->send_btn->setEnabled(false);
+            setCursor(QCursor(Qt::WaitCursor));
+            socketTimeoutTimer.start(5000);
+            targetDevices.pop_front();
+        }else{
+            hintBox.setIcon(QMessageBox::Information);
+            hintBox.setWindowTitle(QApplication::applicationName());
+            hintBox.setText("传输结束！");
+            hintBox.show();
+            connect(&hintBox,&QMessageBox::finished,this,&ProgressBarUI::done);
+            QTimer::singleShot(5000,&hintBox,&QMessageBox::accept);
+        }
     }
 }
 
