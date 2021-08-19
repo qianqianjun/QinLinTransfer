@@ -11,6 +11,7 @@ SOURCES += \
     navigater.cpp \
     onlinedeviceitem.cpp \
     progressBarui.cpp \
+    qilintray.cpp \
     qrcode.cpp \
     qrencode/bitstream.c \
     qrencode/mask.c \
@@ -24,7 +25,6 @@ SOURCES += \
     sendfilewindow.cpp \
     server.cpp \
     settings.cpp \
-    trayicon.cpp \
     webreceive.cpp \
     websend.cpp \
     util.cpp \
@@ -54,6 +54,7 @@ HEADERS += \
     navigater.h \
     onlinedeviceitem.h \
     progressBarui.h \
+    qilintray.h \
     qrcode.h \
     qrencode/bitstream.h \
     qrencode/config.h \
@@ -69,7 +70,6 @@ HEADERS += \
     sendfilewindow.h \
     server.h \
     settings.h \
-    trayicon.h \
     webreceive.h \
     websend.h \
     util.h \

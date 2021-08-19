@@ -80,9 +80,9 @@ DeviceManager::DeviceManager(QPushButton* multi_transfer_btn,
 }
 
 void DeviceManager::startAsking(DiscoveryService*& discoveryService){
-    connect(&discoveryTimer, &QTimer::timeout, discoveryService, &DiscoveryService::refresh);
+    connect(&discoveryTimer, &QTimer::timeout, discoveryService, &DiscoveryService::broadcastReq);
     discoveryTimer.start(2000);
-    discoveryService->refresh();
+    discoveryService->broadcastReq();
 }
 
 void DeviceManager::freeOldWidget(){

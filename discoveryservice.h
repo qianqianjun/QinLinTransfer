@@ -7,22 +7,21 @@ class DiscoveryService : public QObject {
     Q_OBJECT
 public:
     explicit DiscoveryService(QObject *parent = nullptr);
-    void start(quint16 serverPort);
+    void bindListen(quint16 serverPort);
 public slots:
-    void refresh();
+    void broadcastReq();
     void leave();
 private:
     enum {
-//        DISCOVERY_PORT=8081
         DISCOVERY_PORT = 52637
     };
     QUdpSocket socket;
     quint16 fileTransferPort;
-    void sendInfo(const QHostAddress &addr, quint16 port);
+    void sendDatagram(const QHostAddress &addr, quint16 port);
     bool isLocalAddress(const QHostAddress &addr);
-    QList<QHostAddress> broadcastAddresses();
+    QList<QHostAddress> getBroadcastAddr();
 private slots:
-    void socketReadyRead();
+    void handleDatagrams();
 signals:
     void newHost(const QString &deviceName, const QHostAddress &addr, quint16 port);
 };

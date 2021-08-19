@@ -7,6 +7,8 @@
 #include <QWidget>
 #include <QVector>
 #include <QStackedWidget>
+#include <QDebug>
+#include <QMouseEvent>
 
 class NavigaterLabel:public QLabel{
     Q_OBJECT

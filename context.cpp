@@ -199,7 +199,11 @@ void ReceiverContext::prepareReceiveNextFile(){
     QString savePath=Settings::downloadPath();
     while(!transferQueue.empty()){
         FileMetadata &fileInfo=transferQueue.front();
-        QString fileName=savePath+QDir::separator()+fileInfo.filename;
+        // 保存文件name加上时间戳，防止文件被覆盖。
+        //QString fileName=savePath+QDir::separator()+fileInfo.filename;
+        QString timestrap=QDateTime::currentDateTime().toString("yyyy-MM-dd-hh.mm.ss_");
+        QString fileName=savePath+QDir::separator() + timestrap+fileInfo.filename;
+
         if(savingFile){
             savingFile->deleteLater();
             savingFile=nullptr;

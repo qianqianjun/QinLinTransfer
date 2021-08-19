@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QMessageBox>
 
-#include "trayicon.h"
+#include "qilintray.h"
 
 #include<QNetworkInterface>
 #include <QDebug>
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
             throw std::runtime_error(a.translate("Main", "您的系统不支持托盘运行模式！")
                                      .toUtf8().toStdString());
         QApplication* app=&a;
-        TrayIcon t(app);
+        QiLinTray t(app);
         t.show();
         return a.exec();
     } catch (const std::exception &e) {

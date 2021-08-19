@@ -8,10 +8,10 @@
 #include "httpserver/staticfilecontroller.h"
 #include "httpserver/httplistener.h"
 using namespace stefanfrings;
-class TrayIcon : public QSystemTrayIcon {
+class QiLinTray : public QSystemTrayIcon {
     Q_OBJECT
 public:
-    explicit TrayIcon(QApplication*& a,QObject *parent = nullptr);
+    explicit QiLinTray(QApplication*& a,QObject *parent = nullptr);
 public slots:
     void showOnlineDeviceWindow();
     void showSettingWindow();
