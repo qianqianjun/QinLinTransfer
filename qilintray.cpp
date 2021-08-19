@@ -56,6 +56,16 @@ QiLinTray::QiLinTray(QApplication*& a,QObject *parent) : QSystemTrayIcon(parent)
     QTimer::singleShot(0, this, [this]() {
         showMessage(QApplication::applicationName(), QApplication::applicationName() + " 在这里运行！");
     });
+
+    // 这里创建下载目录
+    QDir dir;
+    if(!dir.exists(Settings::downloadPath())){
+        try{
+            dir.mkdir(Settings::downloadPath());
+        }catch(const std::exception& e){
+            QMessageBox::critical(nullptr,"提示信息",e.what());
+        }
+    }
 }
 
 void QiLinTray::onWindowClose(){

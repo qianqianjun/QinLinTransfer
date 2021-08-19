@@ -130,6 +130,14 @@ void MainUI::settingSave(){
     }
     if(ui->set_download_path->text()!=Settings::downloadPath()){
         Settings::setDownloadPath(ui->set_download_path->text());
+        QDir dir;
+        if(!dir.exists(Settings::downloadPath())){
+            try {
+                dir.mkdir(Settings::downloadPath());
+            }  catch (const std::exception& e) {
+                QMessageBox::critical(nullptr,"提示信息",e.what());
+            }
+        }
     }
     if(changeItems.size()>0){
         QString s;
