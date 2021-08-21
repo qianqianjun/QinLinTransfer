@@ -5,6 +5,8 @@ WebSend::WebSend(WebServer*& webServer,QWidget *parent) :
     ui(new Ui::websend),havaQrcode(false),webServer(webServer)
 {
     ui->setupUi(this);
+    this->setWindowModality(Qt::ApplicationModal);
+    this->setWindowFlag(Qt::WindowStaysOnTopHint);
     setWindowTitle("发送文件");
     ui->lineEdit->setEnabled(false);
 

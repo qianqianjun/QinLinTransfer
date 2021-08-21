@@ -3,6 +3,8 @@
 
 SendFileWindow::SendFileWindow(QVector<DeviceInfo> infos,QWidget *parent):
     QDialog(parent),ui(new Ui::sendFileWindow),targetDevices(infos),hintBox(this){
+
+    this->setWindowModality(Qt::ApplicationModal);
     ui->setupUi(this);
     setAcceptDrops(true);
     initTargetDevice();

@@ -5,6 +5,7 @@ ProgressBarUI::ProgressBarUI(Context* context,QWidget *parent) : QDialog(parent)
     ui(new Ui::Scheduler),context(context),errored(false),confirmBox(this){
     ui->setupUi(this);
     setWindowFlag(Qt::WindowStaysOnTopHint);
+    setWindowModality(Qt::ApplicationModal);
 
     confirmBox.setIcon(QMessageBox::Question);
     confirmBox.setWindowTitle(QApplication::applicationName());

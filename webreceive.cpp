@@ -6,6 +6,8 @@ WebReceive::WebReceive(WebServer*& webServer,QWidget *parent) :
     ui(new Ui::webreceive),havaQrcode(false),webServer(webServer)
 {
     ui->setupUi(this);
+    this->setWindowModality(Qt::ApplicationModal);
+    this->setWindowFlag(Qt::WindowStaysOnTopHint);
     setWindowTitle("接收文件");
     QStringList ips=getLocalHostIP();
     for(int i=0;i<ips.size();i++){
