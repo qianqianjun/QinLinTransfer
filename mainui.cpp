@@ -78,15 +78,25 @@ void MainUI::initWebPage()
     connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
 }
 // 设置界面需要的函数
+bool isInt(const QString& s){
+    if(s.length()>8 || s.length()<1)
+        return false;
+    for(int i=0;i<s.length();i++){
+        if(s.at(i)>'9' || s.at(i)<'0')
+            return false;
+    }
+    return true;
+}
 void MainUI::settingSave(){
     QStringList wrongItems;
     if(ui->set_devicename->text()=="") wrongItems.push_back("设备名称");
     QString tport=ui->set_transfer_port->text();
-    if(tport=="" || tport.toInt()<0 || tport.toInt()>65535) wrongItems.push_back("传输端口");
+
+    if(!isInt(tport) || tport.toInt()<0 || tport.toInt()>65535) wrongItems.push_back("传输端口");
     QString dport=ui->set_discovery_port->text();
-    if(dport=="" || dport.toInt()<0 || dport.toInt()>65535) wrongItems.push_back("发现端口");
+    if(!isInt(dport) || dport.toInt()<0 || dport.toInt()>65535) wrongItems.push_back("发现端口");
     QString wport=ui->set_web_port->text();
-    if(dport=="" || wport.toInt()<0 || wport.toInt()>65535) wrongItems.push_back("web端口");
+    if(!isInt(wport) || wport.toInt()<0 || wport.toInt()>65535) wrongItems.push_back("web端口");
     if(ui->set_download_path->text()=="") wrongItems.push_back("下载路径");
 
     if(wrongItems.size()>0){
