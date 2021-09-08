@@ -25,17 +25,28 @@ public:
     void service(HttpRequest& request,HttpResponse& response);
 };
 
+class HugeFileUploadController:public HttpRequestHandler{
+    Q_OBJECT
+private:
+    TemplateCache* templateCache;
+public:
+    explicit HugeFileUploadController(TemplateCache*& templateCache,QObject* parent=nullptr);
+    void service(HttpRequest& request,HttpResponse& response);
+};
+
 
 // RequestMapper
 class RequestMapper:public HttpRequestHandler{
     Q_OBJECT
 private:
+    // 模板的设置
     TemplateCache* templateCache;
-    StaticFileController* staticFileController;
+    StaticFileController* staticFileController; // 静态文件路由设置
+    StaticFileController* downloadFileController; // 下载文件路由设置
 public:
     explicit RequestMapper(QObject* parent=nullptr);
     void service(HttpRequest& request,HttpResponse& response);
-    void setStaicFileController(StaticFileController*& controller);
+    void setdownloadFileController(StaticFileController*& controller);
 };
 
 

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>麒麟超大文件上传</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/util.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/vue.js"></script>
+</head>
+<body>
+    <div class="container-fluid" id="vue-app">
+        <div class="row">
+            <div class="col-md-12" style="padding: 0;">
+                <div class="alert alert-dismissable alert-info">
+                    <h4>麒麟快传</h4>
+                    <strong>局域网跨平台文件传输专家！</strong>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="padding: 0;">
+                <form id='mainForm' enctype='multipart/form-data' method="post">
+                    <div class="form-group">
+                        <input type="file" name="data" class="btn btn-outline-warning btn-block"
+                               id="fileSelecter"
+                               v-on:change="initHugeFile"
+                               style="margin-bottom: 15px;">
+                        <input type="hidden" name="action" value="show">
+                    </div>
+                    <div class="progress" style="margin-left:15px;margin-right: 15px;margin-top: 50px;">
+                        <div class="progress-bar progress-bar-striped"
+                             v-bind:style="'width:'+hugeFile.progress+'%;'"></div>
+                    </div>
+                    <a v-bind:href="btnDisabled?'#':'/file'"
+                       v-on:click="btnDisabled?showMsg('当前有文件正在传输，不要切换界面！'):test"
+                       class="btn btn-block btn-lg btn-light"
+                       style="position: fixed; bottom: 0;left:0;width: 50%;border-radius:unset;z-index: 100;">上传文件</a>
+                    <input type="button" v-on:click="beginUpload"
+                           class="btn btn-block btn-lg btn-info"
+                           v-bind:disabled="btnDisabled"
+                           style="position: fixed; bottom: 0;right: 0;width: 50%;border-radius:unset;z-index: 100;"
+                           value="上传超大文件"/>
+                </form>
+            </div>
+        </div>
+
+        <div class="row"
+             v-bind:style="showResponse?'display:block;margin-top:40px;':'display:none;'">
+            <div class="col-md-12">
+                <div class="alert alert-dismissable alert-danger">
+                    <button type="button" class="close" v-on:click="closeHint">×</button>
+                    <h4>{{responseTitle}}</h4>
+                    <p>{{responseText}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var app=new Vue({
+            el:'#vue-app',
+            data:{
+                                btnDisabled:false,
+                                responseText:"",
+                responseTitle:"",
+                                showResponse:false,
+                hugeFile:{
+                                        progress:0,
+                    size:0,
+                    name:""
+                },
+                fileChunks:[]
+            },
+            methods:{
+                closeHint:function (){
+                        console.log("执行了!");
+                        this.showResponse=false;
+                        this.responseText="";
+                        this.responseTitle="";
+                },
+                                initHugeFile: function () {
+                                        let fileSelecter = document.getElementById("fileSelecter");
+                                        let file=fileSelecter.files[0];
+                                        let chunks=[];
+                                        let chunkSize=256*1000*1000;
+                                        let start=0;
+                                        let index=0;
+                                        while (start < file.size) {
+                                                let end=Math.min(start+chunkSize,file.size);
+                                                chunks.push({
+                            fileName:file.name,
+                            data:file.slice(start,end),
+                            index:index
+                                                });
+                                                start=end;
+                                                index+=1;
+                                        }
+                                        this.fileChunks=chunks;
+                                        this.hugeFile={progress: 0,size:file.size,name:file.name}
+                                },
+                beginUpload:async function (){
+                                        if(this.fileChunks.length<=0){
+                                                alert("您还没有选择文件！");
+                                                return;
+                                        }
+                                        this.btnDisabled=true;
+                                        // 这里要一块一块的传送文件，返回状态信息。
+                                        for (let i = 0; i < this.fileChunks.length; i++) {
+                                                let ok=await this.uploadFile(i);
+                                                if(ok){
+
+                                                }else{
+
+                                                }
+                                        }
+                                        // 上传结束，发送消息给服务器
+                                        this.responseText = await this.endUpload();
+                                        this.showResponse = true;
+                                        this.fileChunks=[];
+                                        this.hugeFile={progress:0};
+                                        document.getElementById("fileSelecter").value="";
+                                        this.btnDisabled=!this.btnDisabled;
+                },
+                                uploadFile: function (index) {
+                                        return new Promise( resolve => {
+                                                let formData = new FormData(document.getElementById("mainForm"));
+                                                formData.set("data",this.fileChunks[index].data);
+                                                formData.append("filename", this.fileChunks[index].fileName);
+                                                formData.append("size",this.fileChunks[index].index);
+
+                                                // 从这里往下写
+                                                let ajax = new XMLHttpRequest();
+                                                ajax.open('post','/file');
+                                                ajax.upload.onprogress = (evt)=>{
+                                                        this.selectedFiles[index].progress=100 * (evt.loaded / this.hugeFile.size).toFixed(2);
+                                                };
+                                                ajax.onreadystatechange =()=>{
+                                                        if (ajax.readyState === 4) {
+                                                                var obj=JSON.parse(ajax.responseText);
+                                                                if(obj.ok){
+                                                                        resolve(true);
+                                                                }else{
+                                                                        resolve(false);
+                                                                }
+                                                        }
+                                                };
+
+                                                // 结束
+
+                                                ajax.send(formData);
+                                        });
+                                },
+
+                // 下面这个函数还没有写完
+                                endUpload:function() {
+                                        return new Promise(resolve => {
+                                                let ajax=new XMLHttpRequest();
+                                                let formData=new FormData();
+                                                formData.append("action", "show");
+                                                formData.append("finish","finish");
+                                                ajax.open('post','/file');
+                                                ajax.onreadystatechange=()=>{
+                                                        if (ajax.readyState === 4) {
+                                                                console.log(ajax.responseText);
+                                                                var obj=JSON.parse(ajax.responseText);
+                                                                resolve(obj.msg);
+                                                        }
+                                                };
+                                                ajax.send(formData);
+                                        });
+                                }
+            }
+        })
+    </script>
+</body>
+</html>

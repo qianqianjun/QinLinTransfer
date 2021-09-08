@@ -5,13 +5,10 @@ util::util()
 
 }
 /**
- * @brief getSettings
+ * @brief getSettings 用于返回初始化的设置
  * @param group
  * @return
  */
-
-
-
 QSettings* getSettings(QString group,QObject* parent){
     if(group=="listener"){
         QSettings* set=new QSettings(parent);
@@ -27,6 +24,7 @@ QSettings* getSettings(QString group,QObject* parent){
         return set;
     }
     if(group=="static"){
+        QString binDir=QCoreApplication::applicationDirPath();
         QSettings* set=new QSettings(parent);
         set->beginGroup("static");
         set->setValue("cacheSize",1000000);
@@ -34,6 +32,7 @@ QSettings* getSettings(QString group,QObject* parent){
         set->setValue("encoding","UTF-8");
         set->setValue("maxAge",60000);
         set->setValue("maxCachedFileSize",65536);
+        set->setValue("path",binDir+"/etc");
         return set;
     }
     if(group=="templates"){
@@ -44,13 +43,18 @@ QSettings* getSettings(QString group,QObject* parent){
         set->setValue("cacheTime",60000);
         set->setValue("encoding","UTF-8");
         set->setValue("path",binDir+"/etc/templates");
-        set->setValue("suffix",".tpl");
+        set->setValue("suffix",".html");
         return set;
     }
     qDebug()<<"can not find the settings!";
     return new QSettings(parent);
 }
 
+/**
+ * @brief searchConfigFile 这个函数暂时没有使用
+ * @param fileName
+ * @return
+ */
 QString searchConfigFile(QString fileName)
 {
     QString binDir=QCoreApplication::applicationDirPath();
