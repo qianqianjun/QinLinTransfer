@@ -28,6 +28,7 @@
                         <input type="file" name="data" class="btn btn-outline-warning btn-block"
                                id="fileSelecter"
                                v-on:change="initHugeFile"
+                               v-bind:disabled="btnDisabled"
                                style="margin-bottom: 15px;">
                         <input type="hidden" name="action" value="show">
                     </div>
@@ -49,12 +50,12 @@
         </div>
 
         <div class="row"
-             v-bind:style="showResponse?'display:block;margin-top:40px;':'display:none;'">
+             v-bind:style="res.show?'display:block;margin-top:40px;':'display:none;'">
             <div class="col-md-12">
-                <div class="alert alert-dismissable alert-danger">
-                    <button type="button" class="close" v-on:click="closeHint">×</button>
-                    <h4>{{responseTitle}}</h4>
-                    <p>{{responseText}}</p>
+                <div v-bind:class="'alert alert-dismissable '+res.style">
+                    <button type="button" class="close" v-on:click="closeHint" v-bind:disabled="btnDisabled">×</button>
+                    <h4>{{res.title}}</h4>
+                    <p>{{res.text}}</p>
                 </div>
             </div>
         </div>
@@ -63,115 +64,202 @@
         var app=new Vue({
             el:'#vue-app',
             data:{
-                                btnDisabled:false,
-                                responseText:"",
-                responseTitle:"",
-                                showResponse:false,
-                hugeFile:{
-                                        progress:0,
-                    size:0,
-                    name:""
+                btnDisabled:false,
+                res:{
+                    title:"",
+                    text:"",
+                    style:"", // alert-danger , alert-success
+                    show:false
                 },
-                fileChunks:[]
+                hugeFile:{
+                    name:"",
+                    size:0,
+                    finish:0,
+                    progress:0,
+                    chunks:[]
+                }
             },
             methods:{
+                test:function (){},
+                showMsg:function (){alert("当前有文件正在传输，请不要切换界面！")},
                 closeHint:function (){
-                        console.log("执行了!");
-                        this.showResponse=false;
-                        this.responseText="";
-                        this.responseTitle="";
+                    this.res={
+                        title:"",
+                        text:"",
+                        style:"",
+                        show:false
+                    };
+                    this.hugeFile={
+                        progress: 0,
+                        name: "",
+                        size: 0,
+                        finish: 0,
+                        chunks: []
+                    }
                 },
-                                initHugeFile: function () {
-                                        let fileSelecter = document.getElementById("fileSelecter");
-                                        let file=fileSelecter.files[0];
-                                        let chunks=[];
-                                        let chunkSize=256*1000*1000;
-                                        let start=0;
-                                        let index=0;
-                                        while (start < file.size) {
-                                                let end=Math.min(start+chunkSize,file.size);
-                                                chunks.push({
+                initHugeFile: function () {
+                    let fileSelecter = document.getElementById("fileSelecter");
+                    let file=fileSelecter.files[0];
+                    let chunks=[];
+                    let chunkSize=512*1024*1024;
+                    let start=0;
+                    let index=0;
+                    while (start < file.size) {
+                        let end=Math.min(start+chunkSize,file.size);
+                        chunks.push({
                             fileName:file.name,
                             data:file.slice(start,end),
                             index:index
-                                                });
-                                                start=end;
-                                                index+=1;
-                                        }
-                                        this.fileChunks=chunks;
-                                        this.hugeFile={progress: 0,size:file.size,name:file.name}
-                                },
-                beginUpload:async function (){
-                                        if(this.fileChunks.length<=0){
-                                                alert("您还没有选择文件！");
-                                                return;
-                                        }
-                                        this.btnDisabled=true;
-                                        // 这里要一块一块的传送文件，返回状态信息。
-                                        for (let i = 0; i < this.fileChunks.length; i++) {
-                                                let ok=await this.uploadFile(i);
-                                                if(ok){
-
-                                                }else{
-
-                                                }
-                                        }
-                                        // 上传结束，发送消息给服务器
-                                        this.responseText = await this.endUpload();
-                                        this.showResponse = true;
-                                        this.fileChunks=[];
-                                        this.hugeFile={progress:0};
-                                        document.getElementById("fileSelecter").value="";
-                                        this.btnDisabled=!this.btnDisabled;
+                        });
+                        start=end;
+                        index+=1;
+                    }
+                    this.hugeFile={
+                        name:file.name,
+                        size:file.size,
+                        finish:0,
+                        progress: 0,
+                        chunks:chunks
+                    }
                 },
-                                uploadFile: function (index) {
-                                        return new Promise( resolve => {
-                                                let formData = new FormData(document.getElementById("mainForm"));
-                                                formData.set("data",this.fileChunks[index].data);
-                                                formData.append("filename", this.fileChunks[index].fileName);
-                                                formData.append("size",this.fileChunks[index].index);
-
-                                                // 从这里往下写
-                                                let ajax = new XMLHttpRequest();
-                                                ajax.open('post','/file');
-                                                ajax.upload.onprogress = (evt)=>{
-                                                        this.selectedFiles[index].progress=100 * (evt.loaded / this.hugeFile.size).toFixed(2);
-                                                };
-                                                ajax.onreadystatechange =()=>{
-                                                        if (ajax.readyState === 4) {
-                                                                var obj=JSON.parse(ajax.responseText);
-                                                                if(obj.ok){
-                                                                        resolve(true);
-                                                                }else{
-                                                                        resolve(false);
-                                                                }
-                                                        }
-                                                };
-
-                                                // 结束
-
-                                                ajax.send(formData);
-                                        });
-                                },
-
-                // 下面这个函数还没有写完
-                                endUpload:function() {
-                                        return new Promise(resolve => {
-                                                let ajax=new XMLHttpRequest();
-                                                let formData=new FormData();
-                                                formData.append("action", "show");
-                                                formData.append("finish","finish");
-                                                ajax.open('post','/file');
-                                                ajax.onreadystatechange=()=>{
-                                                        if (ajax.readyState === 4) {
-                                                                console.log(ajax.responseText);
-                                                                var obj=JSON.parse(ajax.responseText);
-                                                                resolve(obj.msg);
-                                                        }
-                                                };
-                                                ajax.send(formData);
-                                        });
+                beginUpload:async function (){
+                    if(this.hugeFile.chunks.length<=0){
+                        alert("您还没有选择文件！");
+                        return;
+                    }
+                    this.btnDisabled=true;
+                    let prepared = await this.prepareUpload();
+                    if (!prepared) {
+                        this.btnDisabled=false;
+                        return;
+                    }
+                    // 这里要一块一块的传送文件，返回状态信息。
+                    for (let i = 0; i < this.hugeFile.chunks.length; i++) {
+                        let ok=await this.uploadFile(i);
+                        if(!ok){
+                            await this.endUpload(false);
+                            this.btnDisabled=false;
+                            return;
+                        }
+                    }
+                    this.res={
+                        show:true,
+                        style: "alert-info",
+                        title: "提示信息",
+                        text: "文件合并、校验中……"
+                    }
+                    await this.endUpload(true);
+                    document.getElementById("fileSelecter").value="";
+                    this.hugeFile.chunks=[];
+                    this.btnDisabled=!this.btnDisabled;
+                },
+                prepareUpload: function () {
+                    return new Promise(resolve => {
+                        let ajax=new XMLHttpRequest();
+                        let formData=new FormData();
+                        formData.append("action", "show");
+                        formData.append("begin","begin");
+                        ajax.open('post','/hugefile');
+                        ajax.onreadystatechange=()=>{
+                            if(ajax.readyState===4){
+                                if (ajax.status===200) {
+                                    var obj=JSON.parse(ajax.responseText);
+                                    resolve(obj.ok);
+                                    this.res={
+                                        show: !obj.ok,
+                                        style: obj.ok?"alert-success":"alert-danger",
+                                        text:obj.msg,
+                                        title: "提示信息"
+                                    }
+                                }else{
+                                    this.res={
+                                        show:true,
+                                        style: "alert-danger",
+                                        text: "服务器出错，请重启程序！",
+                                        title: "服务器问题"
+                                    }
                                 }
+                            }
+                        };
+                        ajax.send(formData);
+                    });
+                },
+                uploadFile: function (index) {
+                    return new Promise( resolve => {
+                        let formData = new FormData(document.getElementById("mainForm"));
+                        formData.set("data",this.hugeFile.chunks[index].data);
+                        formData.append("filename", this.hugeFile.chunks[index].fileName);
+                        formData.append("index",this.hugeFile.chunks[index].index);
+                        let ajax = new XMLHttpRequest();
+                        ajax.open('post','/hugefile');
+                        ajax.upload.onprogress = (evt)=>{
+                            this.hugeFile.progress=100 * ((this.hugeFile.finish + evt.loaded) / this.hugeFile.size).toFixed(2);
+                        };
+                        ajax.onreadystatechange =()=>{
+                            if (ajax.readyState === 4) {
+                                if (ajax.status === 200) {
+                                    var obj = JSON.parse(ajax.responseText);
+                                    if (obj.ok)
+                                        this.hugeFile.finish += this.hugeFile.chunks[index].data.size;
+                                    this.res={
+                                        show:!obj.ok,
+                                        title: "提示信息",
+                                        text: obj.msg,
+                                        style: obj.ok?"alert-success":"alert-danger"
+                                    }
+                                    resolve(obj.ok);
+                                } else {
+                                    this.res={
+                                        show: true,
+                                        title: "服务器出错",
+                                        text:"服务器崩溃，请重启程序",
+                                        style: "alert-danger"
+                                    }
+                                    resolve(false);
+                                }
+                            }
+                        };
+                        ajax.send(formData);
+                    });
+                },
+                endUpload:function(success) {
+                    return new Promise(resolve => {
+                        let ajax=new XMLHttpRequest();
+                        let formData=new FormData();
+                        if(success){
+                            formData.append("action", "show");
+                            formData.append("filename",this.hugeFile.name);
+                            formData.append("finish","finish");
+                        }else{
+                            formData.append("action", "show");
+                            formData.append("finish","terminate");
+                        }
+                        ajax.open('post','/hugefile');
+                        ajax.onreadystatechange=()=>{
+                            if (ajax.readyState === 4) {
+                                if(ajax.status===200){
+                                    var obj=JSON.parse(ajax.responseText);
+                                    this.res={
+                                        show: true,
+                                        title: "提示信息",
+                                        text: obj.msg,
+                                        style: obj.ok?"alert-success":"alert-danger"
+                                    }
+                                    resolve(true);
+                                }else{
+                                    this.res={
+                                        show: true,
+                                        title: "服务器出错",
+                                        text:"服务器崩溃，请重启程序",
+                                        style: "alert-danger"
+                                    }
+                                    resolve(false);
+                                }
+                            }
+                        };
+                        ajax.send(formData);
+                    });
+                }
             }
         })
     </script>

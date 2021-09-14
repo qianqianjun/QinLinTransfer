@@ -58,7 +58,7 @@
             <div class="alert alert-dismissable alert-danger">
                 <button type="button" class="close" v-on:click="closeHugeHint">×</button>
                 <h4>问题提示</h4>
-                <p>文件<strong v-for="hugeFile in hugeFiles">{{hugeFile}}，</strong> 太大，无法传送，请使用超大文件传输！</p>
+                <p>文件<strong v-for="hugeFile in hugeFiles">{{hugeFile}}</strong> 太大，无法传送，请使用超大文件传输！</p>
             </div>
         </div>
     </div>
@@ -109,144 +109,144 @@
     </div>
 </div>
 <script>
-        var app=new Vue({
-                el:'#vue-app',
-                data:{
-                        showList:true,
-                        btnDisabled:false,
+    var app=new Vue({
+        el:'#vue-app',
+        data:{
+            showList:true,
+            btnDisabled:false,
             responseText:"",
             showResponse:false,
-                        fileMetaData:[],
-                        selectedFiles:[],
+            fileMetaData:[],
+            selectedFiles:[],
             hugeFiles:[],
-                        showHugeFile:false
-                },
-                methods:{
-                        test:function (){},
-                        showMsg:function (){alert("当前有文件正在传输，请不要切换界面！")},
-                        closeHint: function () {
-                                this.showResponse = false;
-                                this.selectedFiles=[];
+            showHugeFile:false
+        },
+        methods:{
+            test:function (){},
+            showMsg:function (){alert("当前有文件正在传输，请不要切换界面！")},
+            closeHint: function () {
+                this.showResponse = false;
+                this.selectedFiles=[];
             },
             closeHugeHint(){
-                                this.hugeFiles=[];
-                                this.showHugeFile=false;
+                this.hugeFiles=[];
+                this.showHugeFile=false;
             },
-                        parseSize:function (size){
-                                let units=["B","KB","MB","GB","TB","PB"];
-                                let i=0;
-                                while(size>1000){
-                                        i++;
-                                        size /= 1000;
-                                }
-                                return Number(size).toFixed(1)+units[i];
-                        },
-                        remove:function (index){
-                                this.selectedFiles.pop(index);
-                                this.fileMetaData.pop(index);
-                                console.log(this.selectedFiles);
-                                console.log(this.fileMetaData);
-                        },
-                        changeVisable:function (visable){
-                                this.showList=!visable;
-                        },
-                        initList:function (){
-                                let fileSelecter = document.getElementById("files");
-                                let selecteds=[];
-                                let metaDatas=[];
-                                let error=[];
-                                for (let i = 0; i < fileSelecter.files.length; i++) {
-                                        let file=fileSelecter.files[i];
-                                        if(file.size>541906131){
-                                                error.push(file.name);
-                                                continue;
-                    }
-                                        metaDatas.push(file);
-                                        selecteds.push({
-                                                filename: file.name,
-                                                size: this.parseSize(file.size),
-                                                progress: 0,
-                                                img: "delete.png",
-                                                operator: true
-                                        });
-                                }
-                                this.selectedFiles = selecteds;
-                                this.fileMetaData = metaDatas;
-                                if(error.length>0){
-                                        this.showHugeFile=true;
-                                        this.hugeFiles=error;
+            parseSize:function (size){
+                let units=["B","KB","MB","GB","TB","PB"];
+                let i=0;
+                while(size>1000){
+                    i++;
+                    size /= 1000;
                 }
-                        },
-                        beginUpload:async function () {
-                                if(this.fileMetaData.length<=0){
-                                        alert("您还没有选择文件！");
-                                        return;
-                                }
-                                this.btnDisabled=true;
-                                for (let i = 0; i < this.selectedFiles.length; i++) {
-                                        this.selectedFiles[i].operator=false;
-                                        this.selectedFiles[i].img="wait.png"
-                                }
-                                // 这里要一个一个的传送文件，返回状态信息。
-                                for (let i = 0; i < this.fileMetaData.length; i++) {
-                                        this.selectedFiles[i].img="upload.png";
-                                        let ok=await this.uploadFile(i);
-                                        if(ok){
-                                                this.selectedFiles[i].img="success.png";
-                                        }else{
-                                                this.selectedFiles[i].img="delete.png";
-                                        }
-                                }
-                                // 上传结束，发送消息给服务器
-                                this.responseText = await this.endUpload();
-                                this.showResponse = true;
-                                this.fileMetaData=[];
-                                document.getElementById("files").value="";
-                                this.btnDisabled=!this.btnDisabled;
-                        },
-                        // 这个函数用于实现文件上传操作
-                        uploadFile: function (index) {
-                                return new Promise( resolve => {
-                                        let formData = new FormData(document.getElementById("mainForm"));
-                                        formData.set("data",this.fileMetaData[index]);
-                                        formData.append("filename", this.fileMetaData[index].name);
-                                        let ajax = new XMLHttpRequest();
-                                        ajax.open('post','/file');
-                                        ajax.upload.onprogress = (evt)=>{
-                                                this.selectedFiles[index].progress=100 * (evt.loaded / evt.total).toFixed(2);
-                                        };
-                                        ajax.onreadystatechange =()=>{
-                                                if (ajax.readyState === 4) {
-                                                        var obj=JSON.parse(ajax.responseText);
-                                                        if(obj.ok){
-                                                                resolve(true);
-                                                        }else{
-                                                                resolve(false);
-                                                        }
-                                                }
-                                        };
-                                        ajax.send(formData);
-                                });
-                        },
-            endUpload:function() {
-                                return new Promise(resolve => {
-                                        let ajax=new XMLHttpRequest();
-                                        let formData=new FormData();
-                                        formData.append("action", "show");
-                                        formData.append("finish","finish");
-                                        ajax.open('post','/file');
-                                        ajax.onreadystatechange=()=>{
-                                                if (ajax.readyState === 4) {
-                                                        console.log(ajax.responseText);
-                                                        var obj=JSON.parse(ajax.responseText);
-                                                        resolve(obj.msg);
-                                                }
-                                        };
-                                        ajax.send(formData);
-                });
+                return Number(size).toFixed(1)+units[i];
+            },
+            remove:function (index){
+                this.selectedFiles.pop(index);
+                this.fileMetaData.pop(index);
+                console.log(this.selectedFiles);
+                console.log(this.fileMetaData);
+            },
+            changeVisable:function (visable){
+                this.showList=!visable;
+            },
+            initList:function (){
+                let fileSelecter = document.getElementById("files");
+                let selecteds=[];
+                let metaDatas=[];
+                let error=[];
+                for (let i = 0; i < fileSelecter.files.length; i++) {
+                    let file=fileSelecter.files[i];
+                    if(file.size>541906131){
+                        error.push(file.name);
+                        continue;
+                    }
+                    metaDatas.push(file);
+                    selecteds.push({
+                        filename: file.name,
+                        size: this.parseSize(file.size),
+                        progress: 0,
+                        img: "delete.png",
+                        operator: true
+                    });
+                }
+                this.selectedFiles = selecteds;
+                this.fileMetaData = metaDatas;
+                if(error.length>0){
+                    this.showHugeFile=true;
+                    this.hugeFiles=error;
+                }
+            },
+            beginUpload:async function () {
+                if(this.fileMetaData.length<=0){
+                    alert("您还没有选择文件！");
+                    return;
+                }
+                this.btnDisabled=true;
+                for (let i = 0; i < this.selectedFiles.length; i++) {
+                    this.selectedFiles[i].operator=false;
+                    this.selectedFiles[i].img="wait.png"
+                }
+                // 这里要一个一个的传送文件，返回状态信息。
+                for (let i = 0; i < this.fileMetaData.length; i++) {
+                    this.selectedFiles[i].img="upload.png";
+                    let ok=await this.uploadFile(i);
+                    if(ok){
+                        this.selectedFiles[i].img="success.png";
+                    }else{
+                        this.selectedFiles[i].img="delete.png";
+                    }
+                }
+                // 上传结束，发送消息给服务器
+                this.responseText = await this.endUpload();
+                this.showResponse = true;
+                this.fileMetaData=[];
+                document.getElementById("files").value="";
+                this.btnDisabled=!this.btnDisabled;
+            },
+            // 这个函数用于实现文件上传操作
+            uploadFile: function (index) {
+                return new Promise( resolve => {
+                    let formData = new FormData(document.getElementById("mainForm"));
+                    formData.set("data",this.fileMetaData[index]);
+                    formData.append("filename", this.fileMetaData[index].name);
+                    let ajax = new XMLHttpRequest();
+                    ajax.open('post','/file');
+                    ajax.upload.onprogress = (evt)=>{
+                        this.selectedFiles[index].progress=100 * (evt.loaded / evt.total).toFixed(2);
+                    };
+                    ajax.onreadystatechange =()=>{
+                        if (ajax.readyState === 4) {
+                            var obj=JSON.parse(ajax.responseText);
+                            if(obj.ok){
+                                resolve(true);
+                            }else{
+                                resolve(false);
+                            }
                         }
-                },
-        });
+                    };
+                    ajax.send(formData);
+                });
+            },
+            endUpload:function() {
+                return new Promise(resolve => {
+                    let ajax=new XMLHttpRequest();
+                    let formData=new FormData();
+                    formData.append("action", "show");
+                    formData.append("finish","finish");
+                    ajax.open('post','/file');
+                    ajax.onreadystatechange=()=>{
+                        if (ajax.readyState === 4) {
+                            console.log(ajax.responseText);
+                            var obj=JSON.parse(ajax.responseText);
+                            resolve(obj.msg);
+                        }
+                    };
+                    ajax.send(formData);
+                });
+            }
+        },
+    });
 </script>
 </body>
 </html>

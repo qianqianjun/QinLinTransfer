@@ -12,9 +12,30 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDesktopServices>
+#include <qalgorithms.h>
 
 using namespace stefanfrings;
+class Chunk:public QObject{
+    Q_OBJECT
+public:
+    quint32 index;
+    QString filename;
+    QFile* filePtr;
+    bool operator<(const Chunk &other) const{
+        return index<other.index;
+    }
+    explicit Chunk(quint32 index,QString filename,QFile*& filePtr,QObject* parent=nullptr);
+    ~Chunk();
+};
 
+class HostChunk:public QObject{
+    Q_OBJECT
+public:
+    QTimer timer;
+    QList<Chunk*> chunks;
+    explicit HostChunk(QObject* parent=nullptr);
+    ~HostChunk();
+};
 // Controller
 class FileUploadController:public HttpRequestHandler{
     Q_OBJECT
@@ -29,11 +50,12 @@ class HugeFileUploadController:public HttpRequestHandler{
     Q_OBJECT
 private:
     TemplateCache* templateCache;
+    QMap<quint32,HostChunk*>* hostChunks;
 public:
-    explicit HugeFileUploadController(TemplateCache*& templateCache,QObject* parent=nullptr);
+    explicit HugeFileUploadController(TemplateCache*& templateCache,
+                                      QMap<quint32,HostChunk*>*& hostChunks,QObject* parent=nullptr);
     void service(HttpRequest& request,HttpResponse& response);
 };
-
 
 // RequestMapper
 class RequestMapper:public HttpRequestHandler{
@@ -43,6 +65,7 @@ private:
     TemplateCache* templateCache;
     StaticFileController* staticFileController; // 静态文件路由设置
     StaticFileController* downloadFileController; // 下载文件路由设置
+    QMap<quint32,HostChunk*> *hostChunks;
 public:
     explicit RequestMapper(QObject* parent=nullptr);
     void service(HttpRequest& request,HttpResponse& response);

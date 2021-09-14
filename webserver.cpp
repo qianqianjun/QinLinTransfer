@@ -1,11 +1,29 @@
 #include "webserver.h"
 
-
 RequestMapper::RequestMapper(QObject *parent):HttpRequestHandler(parent){
     QSettings* templeteSettings=getSettings("templates",this);
     templateCache=new TemplateCache(templeteSettings,this);
     QSettings* fileSettings=getSettings("static",this);
     staticFileController=new StaticFileController(fileSettings,this);
+    hostChunks=new QMap<quint32,HostChunk*>();
+}
+
+Chunk::Chunk(quint32 index, QString filename, QFile*& filePtr, QObject *parent):
+    QObject(parent),index(index),filename(filename),filePtr(filePtr){}
+
+Chunk::~Chunk(){
+    // 删除块指针所指向的块文件，关闭文件，删除块指针
+    filePtr->remove();
+    filePtr->close();
+    filePtr->deleteLater();
+}
+
+HostChunk::HostChunk(QObject *parent):QObject(parent){}
+
+HostChunk::~HostChunk(){
+    for(int i=0;i<chunks.size();i++){
+        chunks[i]->deleteLater();
+    }
 }
 
 void RequestMapper::setdownloadFileController(StaticFileController*& controller){
@@ -18,7 +36,7 @@ void RequestMapper::service(HttpRequest &request, HttpResponse &response){
     if (path.startsWith("/file")){
         FileUploadController(templateCache).service(request, response);
     }else if(path.startsWith("/hugefile")){
-        HugeFileUploadController(templateCache).service(request,response);
+        HugeFileUploadController(templateCache,hostChunks).service(request,response);
     }else if(path.startsWith("/static")){
         staticFileController->service(request,response);
     }else if(path.startsWith("download")){
@@ -30,7 +48,10 @@ void RequestMapper::service(HttpRequest &request, HttpResponse &response){
 }
 
 HugeFileUploadController::HugeFileUploadController(
-        TemplateCache *&templateCache, QObject *parent):HttpRequestHandler(parent),templateCache(templateCache){}
+        TemplateCache *&templateCache,QMap<quint32,HostChunk*>*& hostChunks,
+        QObject *parent):HttpRequestHandler(parent),templateCache(templateCache),
+        hostChunks(hostChunks){
+}
 
 void HugeFileUploadController::service(HttpRequest &request, HttpResponse &response)
 {
@@ -40,10 +61,92 @@ void HugeFileUploadController::service(HttpRequest &request, HttpResponse &respo
     if(request.getParameter("action")=="show"){
         QHostAddress addr=request.getPeerAddress();
         quint32 ip=addr.toIPv4Address();
-        // 为每一个ip地址开启一个队列。
-        // 每一次传送的数据 {ip,块数量,块数据}。
-        // 如果一个文件传输完成，则排序该ip对应的数据块，合并数据块成文件，保存到主机上。
-        // 删除该ip对应的队列。
+        if(request.getParameter("begin")=="begin"){
+            if(hostChunks->contains(ip)){
+                // 只有在遇到故障的时候才会执行这里。
+                hostChunks->value(ip)->deleteLater();
+            }
+            hostChunks->insert(ip,new HostChunk(nullptr));
+            QJsonObject responseText;
+            responseText.insert("ok", true);
+            responseText.insert("msg","大文件传输初始化成功！");
+            response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
+            return;
+        }
+        if(request.getParameter("finish")=="finish"){
+            QString fileName=request.getParameter("filename");
+            // 合并文件，完成最后的操作。
+            QList<Chunk*> blocks=hostChunks->value(ip)->chunks;
+            QString timestrap=QDateTime::currentDateTime().toString("yyyy-MM-dd-hh.mm.ss_");
+            QString storeName=Settings::downloadPath()+QDir::separator()+timestrap+fileName;
+            QFile* storeFile=new QFile(storeName,this);
+            if(storeFile->open(QIODevice::ReadWrite)){
+                for(int i=0;i<blocks.size();i++){
+                    blocks[i]->filePtr->seek(0);
+                    storeFile->write(blocks[i]->filePtr->readAll());
+                }
+                storeFile->close();
+                storeFile->deleteLater();
+
+                hostChunks->value(ip)->deleteLater();
+                hostChunks->remove(ip);
+
+                QDesktopServices::openUrl(QUrl::fromLocalFile(Settings::downloadPath()));
+                QJsonObject responseText;
+                responseText.insert("ok", true);
+                responseText.insert("msg", QString("文件已保存在%1%2").arg(Settings::downloadPath()).arg("！"));
+                response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
+            }else{
+                // 文件打开失败
+                hostChunks->value(ip)->deleteLater();
+                hostChunks->remove(ip);
+                QJsonObject responseText;
+                responseText.insert("ok", false);
+                responseText.insert("msg","文件块合并失败，文件无法打开，请检查是否具有目录权限！");
+                response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
+            }
+            return;
+        }
+        if(request.getParameter("finish")=="terminate"){
+            // 出现错误，删除已经保存的块数据
+            hostChunks->value(ip)->deleteLater();
+            hostChunks->remove(ip);
+            QJsonObject responseText;
+            responseText.insert("ok", true);
+            responseText.insert("msg","删除失败的任务成功！");
+            response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
+            return;
+        }
+        // 每一次传送的数据 {ip,index,块数据}。
+        QTemporaryFile* file=request.getUploadedFile("data");
+        QString fileName=request.getParameter("filename");
+        QString index=request.getParameter("index");
+        if (file){
+            QString storeName=Settings::downloadPath()+QDir::separator()+fileName+index;
+            QFile* storeFile=new QFile(storeName,nullptr);
+            if(storeFile->open(QIODevice::ReadWrite)){
+                while (!file->atEnd() && !file->error()){
+                    QByteArray buffer=file->readAll();
+                    storeFile->write(buffer);
+                }
+                // 增加新的chunk块
+                hostChunks->value(ip)->chunks.append(new Chunk(index.toUInt(),fileName,storeFile));
+                QJsonObject responseText;
+                responseText.insert("ok", true);
+                response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
+            }else{
+                // 文件打开失败
+                QJsonObject responseText;
+                responseText.insert("ok", false);
+                responseText.insert("msg","保存块数据失败，文件无法打开，请检查是否具有目录权限！");
+                response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
+            }
+        }else{
+            QJsonObject responseText;
+            responseText.insert("ok", false);
+            responseText.insert("msg","读取上传的文件失败！");
+            response.write(QJsonDocument(responseText).toJson(QJsonDocument::Compact));
+        }
     }else{
         response.write(t.toUtf8(),true);
     }
@@ -77,7 +180,7 @@ void FileUploadController::service(HttpRequest &request, HttpResponse &response)
             QFile* storeFile=new QFile(storeName,this);
             if(storeFile->open(QIODevice::WriteOnly)){
                 while (!file->atEnd() && !file->error()){
-                    QByteArray buffer=file->read(65536);
+                    QByteArray buffer=file->readAll();
                     storeFile->write(buffer);
                 }
             }
