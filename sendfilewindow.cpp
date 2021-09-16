@@ -163,6 +163,17 @@ void SendFileManager::changeIndex(int row,int col){
     qDebug()<<col;
     this->selectedIndex=row;
 }
+QString parseSize(qint64 size){
+    QStringList units;
+    units<<"B"<<"KB"<<"MB"<<"GB"<<"TB";
+    int i=0;
+    double capacity=size;
+    while(capacity>1000){
+        i++;
+        capacity/=1000;
+    }
+    return QString("%1%2").arg(QString::number(capacity,'g',2)).arg(units[i]);
+}
 void SendFileManager::addFile(const QString &filename){
     foreach (QSharedPointer<QFile> file, files) {
         if (file->fileName() == filename)
@@ -182,17 +193,6 @@ void SendFileManager::addFile(const QString &filename){
     QFile* file=fp.data();
     QFileInfo Info(*file);
     fileInfos.append(FileInfo(Info.fileName(),parseSize(Info.size())));
-}
-QString SendFileManager::parseSize(qint64 size){
-    QStringList units;
-    units<<"B"<<"KB"<<"MB"<<"GB"<<"TB";
-    int i=0;
-    double capacity=size;
-    while(capacity>1000){
-        i++;
-        capacity/=1000;
-    }
-    return QString("%1%2").arg(QString::number(capacity,'g',2)).arg(units[i]);
 }
 void SendFileManager::removeFile(){
     if(selectedIndex>=0 && selectedIndex<files.size()){

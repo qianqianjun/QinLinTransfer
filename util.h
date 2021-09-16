@@ -37,5 +37,4 @@ typedef struct metadata{
     quint64 size;
 } FileMetadata;
 
-
 #endif // UTIL_H

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>麒麟文件下载</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/util.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/vue.js"></script>
+</head>
+<body>
+<div class="container-fluid" id="vue-app">
+    <div class="row">
+        <div class="col-md-12" style="padding: 0;">
+            <div class="alert alert-dismissable alert-info">
+                <h4>麒麟快传</h4>
+                <strong>局域网跨平台文件传输专家！</strong>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" style="padding: 0;">
+            <div id="accordion">
+                <div class="card">
+                    <div class="card-header">
+                        <a class="card-link" data-toggle="collapse">
+                            <span>
+                                文件列表
+                            </span>
+                            <span style="float: right;">
+                                <img v-bind:src="showList ? '/static/img/close.png':'/static/img/open.png'"
+                                     v-on:click="changeVisable(showList)"
+                                     style="height: 1rem;">
+                            </span>
+                        </a>
+                    </div>
+
+                    <div id="collapseOne" v-bind:class="showList?'collapse show':'collapse'" data-parent="#accordion">
+                        <div class="card-body">
+                            <ul style="padding-inline-start:0;">
+                                {loop row}
+                                <li style="list-style-type: none;display: flex;
+                                    line-height: 3rem;
+                                    justify-content: left;align-items: center;">
+                                    <span style="width: 65%;display: inline-block;text-overflow: ellipsis;
+                                    white-space: nowrap;overflow: hidden;">
+                                        {row.name}
+                                    </span>
+                                    <span style="width: 30%;display: inline-block;padding-left: 5px;">
+                                        {row.size}
+                                    </span>
+                                    <a style="width: 5%;line-height: 100%;text-align: right;" href="/download/{row.name}" target="_self">
+                                        <img src="/static/img/download.png" style="height:1rem;">
+                                    </a>
+                                </li>
+                                {end row}
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var app=new Vue({
+        el:'#vue-app',
+        data:{
+            showList:true
+        },
+        methods:{
+            changeVisable:function (){
+                this.showList=!this.showList;
+            }
+        }
+    })
+</script>
+</body>
+</html>

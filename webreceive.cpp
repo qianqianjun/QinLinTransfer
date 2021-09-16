@@ -13,10 +13,10 @@ WebReceive::WebReceive(WebServer*& webServer,QWidget *parent) :
     for(int i=0;i<ips.size();i++){
         ui->ips_combox->addItem(ips[i]);
     }
+    connect(ui->generateCodeBtn,&QPushButton::clicked,this,&WebReceive::generateCodeBtnClick);
 }
 
-void WebReceive::removeOld()
-{
+void WebReceive::removeOld(){
     if(havaQrcode){
         delete ui->qrcode_area->layout();
         delete qrcodeWidget;
@@ -29,7 +29,7 @@ WebReceive::~WebReceive()
 }
 
 
-void WebReceive::on_pushButton_clicked()
+void WebReceive::generateCodeBtnClick()
 {
     removeOld();
     havaQrcode=true;

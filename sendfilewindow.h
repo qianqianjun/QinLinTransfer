@@ -38,7 +38,6 @@ public:
     SendFileManager(QVector<DeviceInfo> targetDevices,QObject* parent=nullptr);
     void addFile(const QString& filename);
     void removeFile();
-    QString parseSize(qint64 size);
 public slots:
     void changeIndex(int row,int col);
 };

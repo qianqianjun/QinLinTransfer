@@ -23,7 +23,7 @@ public:
     void removeOld();
     ~WebReceive();
 private slots:
-    void on_pushButton_clicked();
+    void generateCodeBtnClick();
 
 private:
     Ui::webreceive *ui;

@@ -25,6 +25,7 @@ SOURCES += \
     sendfilewindow.cpp \
     server.cpp \
     settings.cpp \
+    webcontroller.cpp \
     webreceive.cpp \
     websend.cpp \
     util.cpp \
@@ -70,6 +71,7 @@ HEADERS += \
     sendfilewindow.h \
     server.h \
     settings.h \
+    webcontroller.h \
     webreceive.h \
     websend.h \
     util.h \

@@ -58,7 +58,7 @@
             <div class="alert alert-dismissable alert-danger">
                 <button type="button" class="close" v-on:click="closeHugeHint">×</button>
                 <h4>问题提示</h4>
-                <p>文件<strong v-for="hugeFile in hugeFiles">{{hugeFile}}</strong> 太大，无法传送，请使用超大文件传输！</p>
+                <p>文件<strong v-for="hugeFile in hugeFiles">{{hugeFile}}，</strong> 太大，无法传送，请使用超大文件传输！</p>
             </div>
         </div>
     </div>
@@ -142,10 +142,8 @@
                 return Number(size).toFixed(1)+units[i];
             },
             remove:function (index){
-                this.selectedFiles.pop(index);
-                this.fileMetaData.pop(index);
-                console.log(this.selectedFiles);
-                console.log(this.fileMetaData);
+                this.selectedFiles.splice(index,1);
+                this.fileMetaData.splice(index,1);
             },
             changeVisable:function (visable){
                 this.showList=!visable;
