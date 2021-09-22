@@ -26,20 +26,39 @@ void SendFileWindow::dropEvent(QDropEvent *event)
     if(event->mimeData()->hasUrls()){
         foreach(const QUrl &url,event->mimeData()->urls()){
             QFileInfo info(url.toLocalFile());
-            this->manager->addFile(info.filePath());
+            if(info.isFile()){
+                this->manager->addFile(info.filePath());
+            }
+            else{
+                QQueue<QFileInfo> dirInfos;
+                dirInfos.append(info);
+                while(!dirInfos.empty()){
+                    QFileInfo temp=dirInfos.takeFirst();
+                    QDir dir(temp.filePath());
+                    QFileInfoList fileInfos=dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+                    for(QFileInfo& elem:fileInfos){
+                        if(elem.isFile()){
+                            this->manager->addFile(elem.filePath(),info.absolutePath());
+                        }else{
+                            dirInfos.append(elem);
+                        }
+                    }
+                }
+            }
             renderselectedFiles();
         }
     }
 }
 
 void SendFileWindow::initTargetDevice(){
-    connect(ui->cancle_btn,&QPushButton::clicked,this,&QWidget::close);
     ui->device_table->setSelectionBehavior ( QAbstractItemView::SelectRows); //设置选择行为，以行为单位
     ui->device_table->setSelectionMode ( QAbstractItemView::SingleSelection); //设置选择模式，选择单行
     ui->device_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->device_table->setColumnCount(2);
     ui->device_table->setHorizontalHeaderLabels(QStringList()<<"设备名称"<<"IP地址");
-    ui->device_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    // ui->device_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->device_table->horizontalHeader()->setStretchLastSection(true);
+    ui->device_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->device_table->setRowCount(targetDevices.size());
     for(int i=0;i<targetDevices.size();i++){
         int col=0;
@@ -48,13 +67,17 @@ void SendFileWindow::initTargetDevice(){
     }
 }
 
+/**
+ * @brief SendFileWindow::initSelectedFileArea
+ */
 void SendFileWindow::initSelectedFileArea(){
     ui->files_table->setSelectionBehavior ( QAbstractItemView::SelectRows); //设置选择行为，以行为单位
     ui->files_table->setSelectionMode ( QAbstractItemView::SingleSelection); //设置选择模式，选择单行
     ui->files_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->files_table->setColumnCount(2);
     ui->files_table->setHorizontalHeaderLabels(QStringList()<<"文件名称"<<"文件大小");
-    ui->files_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->files_table->horizontalHeader()->setStretchLastSection(true);
+    ui->files_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     connect(ui->files_table,&QTableWidget::cellClicked,this->manager,&SendFileManager::changeIndex);
     connect(ui->remove_btn,&QPushButton::clicked,[=](){
         if(this->manager->selectedIndex==-1){
@@ -68,19 +91,65 @@ void SendFileWindow::initSelectedFileArea(){
         }
     });
     connect(ui->select_file_btn,&QToolButton::clicked,[=](){
-
-        QStringList filenames = QFileDialog::getOpenFileNames(this, QString("选择要发送的文件"));
-        if(!filenames.empty()){
-            foreach (const QString &filename, filenames) {
-                this->manager->addFile(filename);
+        QString path=QFileDialog::getExistingDirectory(this,"选择要发送的文件夹");
+        if(!path.isEmpty()){
+            QFileInfo root(path);
+            QQueue<QFileInfo> dirInfos;
+            dirInfos.append(root);
+            while(!dirInfos.empty()){
+                QFileInfo temp=dirInfos.takeFirst();
+                QDir dir(temp.filePath());
+                QFileInfoList fileInfos=dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+                for(QFileInfo& elem:fileInfos){
+                    if(elem.isFile()){
+                        this->manager->addFile(elem.filePath(),root.absolutePath());
+                    }else{
+                        dirInfos.append(elem);
+                    }
+                }
             }
             renderselectedFiles();
         }
     });
+
+    connect(ui->manage_btn,&QPushButton::clicked,this,&SendFileWindow::openManageWindow);
+}
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ * @brief SendFileWindow::openManageWindow
+ */
+void SendFileWindow::openManageWindow(){
+    ManageWindow* window=new ManageWindow(this->manager->fileInfos,this);
+    window->show();
+    connect(window,&ManageWindow::saveSetting,this,&SendFileWindow::updateList);
+}
+
+void SendFileWindow::updateList(QList<int> deleteIndexs)
+{
+
+    std::sort(deleteIndexs.begin(),deleteIndexs.end());
+    for(int i=0;i<deleteIndexs.size();i++){
+        deleteIndexs[i]-=i;
+    }
+    for(int i=0;i<deleteIndexs.size();i++){
+        this->manager->fileInfos.removeAt(deleteIndexs[i]);
+        this->manager->files.removeAt(deleteIndexs[i]);
+    }
+    renderselectedFiles();
 }
 
 void SendFileWindow::renderselectedFiles(){
-    // clear content of the table first
     ui->files_table->clearContents();
     ui->files_table->setRowCount(this->manager->fileInfos.size());
     for(int i=0;i<this->manager->fileInfos.size();i++){
@@ -103,18 +172,6 @@ void SendFileWindow::socketTimeout(){
     setCursor(QCursor(Qt::ArrowCursor));
     sendFile();
 }
-
-//void SendFileWindow::socketErrorOccurred(){
-//    qDebug()<<"SendFileWindow::socketErrorOccurred --start";
-//    socketTimeoutTimer.stop();
-//    socket->disconnectFromHost();
-//    socket->close();
-//    socket->deleteLater();
-//    QMessageBox::critical(this, QApplication::applicationName(), socket->errorString());
-//    ui->send_btn->setEnabled(true);
-//    setCursor(QCursor(Qt::ArrowCursor));
-//    qDebug()<<"SendFileWindow::socketErrorOccurred --end";
-//}
 
 void SendFileWindow::socketConnected(){
     socketTimeoutTimer.stop();
@@ -151,16 +208,13 @@ void SendFileWindow::sendFile(){
     }
 }
 
-/**
- * @brief SendFileManager::SendFileManager 的相关实现函数
- * @param parent
- */
+//===================================================================================================
 SendFileManager::SendFileManager(QVector<DeviceInfo> targetDevices,
                                  QObject* parent):
     QObject(parent),targetDevices(targetDevices),selectedIndex(-1){
 }
 void SendFileManager::changeIndex(int row,int col){
-    qDebug()<<col;
+    col++;
     this->selectedIndex=row;
 }
 QString parseSize(qint64 size){
@@ -168,19 +222,19 @@ QString parseSize(qint64 size){
     units<<"B"<<"KB"<<"MB"<<"GB"<<"TB";
     int i=0;
     double capacity=size;
-    while(capacity>1000){
+    while(capacity>1024){
         i++;
-        capacity/=1000;
+        capacity/=1024;
     }
     return QString("%1%2").arg(QString::number(capacity,'g',2)).arg(units[i]);
 }
-void SendFileManager::addFile(const QString &filename){
+void SendFileManager::addFile(const QString &filepath,QString root){
+    // 检查是否已经在队列中了
     foreach (QSharedPointer<QFile> file, files) {
-        if (file->fileName() == filename)
+        if (file->fileName() == filepath)
             return;
     }
-
-    QSharedPointer<QFile> fp = QSharedPointer<QFile>::create(filename);
+    QSharedPointer<QFile> fp = QSharedPointer<QFile>::create(filepath);
     if (!fp->open(QIODevice::ReadOnly)) {
         QMessageBox::critical(nullptr, QApplication::applicationName(),"无法打开所选文件！");
         return;
@@ -190,9 +244,14 @@ void SendFileManager::addFile(const QString &filename){
         return;
     }
     files.append(fp);
-    QFile* file=fp.data();
-    QFileInfo Info(*file);
-    fileInfos.append(FileInfo(Info.fileName(),parseSize(Info.size())));
+    QFileInfo info(filepath);
+    QString filename;
+    if(root==nullptr){
+        filename=info.fileName();
+    }else{
+        filename=info.absoluteFilePath().replace(root+"/","");
+    }
+    fileInfos.append(FileInfo(filename,parseSize(info.size())));
 }
 void SendFileManager::removeFile(){
     if(selectedIndex>=0 && selectedIndex<files.size()){

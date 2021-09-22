@@ -8,6 +8,7 @@ SOURCES += \
     discoveryservice.cpp \
     main.cpp \
     mainui.cpp \
+    managewindow.cpp \
     navigater.cpp \
     onlinedeviceitem.cpp \
     progressBarui.cpp \
@@ -52,6 +53,7 @@ HEADERS += \
     crypto.h \
     discoveryservice.h \
     mainui.h \
+    managewindow.h \
     navigater.h \
     onlinedeviceitem.h \
     progressBarui.h \
@@ -96,6 +98,7 @@ HEADERS += \
 
 FORMS += \
     mainui.ui \
+    managewindow.ui \
     progressBarui.ui \
     sendfilewindow.ui \
     webreceive.ui \

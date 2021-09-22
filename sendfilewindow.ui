@@ -142,14 +142,14 @@ color: rgb(0, 0, 0);</string>
          </sizepolicy>
         </property>
         <property name="text">
-         <string>选择文件 ...</string>
+         <string>打开 ...</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="cancle_btn">
+       <widget class="QPushButton" name="manage_btn">
         <property name="text">
-         <string>取消</string>
+         <string>管理</string>
         </property>
        </widget>
       </item>

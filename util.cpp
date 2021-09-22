@@ -101,3 +101,37 @@ QStringList getLocalHostIP()
   }
   return result;
 }
+
+VirtualFile::VirtualFile(VirtualFile* father, QObject *parent):QObject(parent),father(father){
+}
+
+/**
+ * @brief 添加文件
+ * @param info
+ * @param key
+ */
+void VirtualFile::addFile(QList<QString> parts, int key,FileInfo fileinfo)
+{
+    if(parts.size()<2){
+        // 这是一个文件
+        VirtualFile* newFile=new VirtualFile(this,this);
+        newFile->pwd=this->pwd;
+        newFile->key=key;
+        newFile->info=fileinfo;
+        this->files.append(newFile);
+    }else{ // 这是一个目录
+        // 先找找是否已经创建了这个目录
+        QString dirName=parts[0];
+        parts.pop_front();
+        if(dirs.contains(dirName)){
+            // 如果存在目录，则直接加
+            dirs.value(dirName)->addFile(parts,key,fileinfo);
+        }else{
+            // 如果没有创建这个目录，马上创建
+            VirtualFile* newDir=new VirtualFile(this,this);
+            newDir->pwd=this->pwd+dirName+QDir::separator();
+            dirs.insert(dirName,newDir);
+            dirs.value(dirName)->addFile(parts,key,fileinfo);
+        }
+    }
+}

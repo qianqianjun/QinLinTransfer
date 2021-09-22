@@ -16,17 +16,14 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QQueue>
 #include <QTimer>
+#include <managewindow.h>
+#include <algorithm>
 
 namespace Ui {
 class sendFileWindow;
 }
-
-typedef struct finfo{
-    QString fileName;
-    QString fileSize;
-    finfo(QString name,QString size):fileName(name),fileSize(size){}
-}FileInfo;
 
 class SendFileManager:public QObject{
     Q_OBJECT
@@ -36,7 +33,7 @@ public:
     QList<QSharedPointer<QFile>> files;
     int selectedIndex;
     SendFileManager(QVector<DeviceInfo> targetDevices,QObject* parent=nullptr);
-    void addFile(const QString& filename);
+    void addFile(const QString& filepath,QString root=nullptr);
     void removeFile();
 public slots:
     void changeIndex(int row,int col);
@@ -63,8 +60,10 @@ public:
     void renderselectedFiles();
 private slots:
     void socketConnected();
-    // void socketErrorOccurred();
     void socketTimeout();
     void sendFile();
+    void openManageWindow();
+
+    void updateList(QList<int> deleteIndexs);
 };
 #endif // SENDFILEWINDOW_H
