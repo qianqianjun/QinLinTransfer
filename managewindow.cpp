@@ -16,7 +16,7 @@ ManageWindow::ManageWindow(QList<FileInfo> &fileInfos, QWidget *parent):
     root=new VirtualFile(nullptr,this);
     root->pwd="/";
     for(int key=0;key<fileInfos.size();key++){
-        QList<QString> parts=fileInfos[key].fileName.split(QDir::separator());
+        QList<QString> parts=fileInfos[key].fileName.split("/");
         root->addFile(parts,key,fileInfos[key]);
     }
     // 设置当前所在目录
