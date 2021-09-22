@@ -255,6 +255,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="copyButton">
+           <property name="text">
+            <string>拷贝地址</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_10">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>

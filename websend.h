@@ -15,6 +15,7 @@
 #include <QFile>
 #include <util.h>
 #include <settings.h>
+#include <QClipboard>
 
 namespace Ui {
 class websend;
@@ -33,6 +34,7 @@ public:
 private slots:
     void selectFileBtnClicked();
     void generateCodeBtnClicked();
+    void copyBtnClicked();
 
 private:
     Ui::websend *ui;

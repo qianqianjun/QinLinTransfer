@@ -14,6 +14,7 @@ WebReceive::WebReceive(WebServer*& webServer,QWidget *parent) :
         ui->ips_combox->addItem(ips[i]);
     }
     connect(ui->generateCodeBtn,&QPushButton::clicked,this,&WebReceive::generateCodeBtnClick);
+    connect(ui->copyButton,&QPushButton::clicked,this,&WebReceive::copyBtnClick);
 }
 
 void WebReceive::removeOld(){
@@ -42,5 +43,15 @@ void WebReceive::generateCodeBtnClick()
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);
     update();
+}
+
+void WebReceive::copyBtnClick()
+{
+    removeOld();
+    havaQrcode=true;
+    QString url=webServer->openReceiver(ui->ips_combox->currentText(),Settings::WebPort());
+    QClipboard *clipboard = QApplication::clipboard();   //获取系统剪贴板指针
+    clipboard->setText(url);
+    QMessageBox::information(this,"提示","地址已复制到剪切板");
 }
 
