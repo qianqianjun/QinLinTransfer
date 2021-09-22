@@ -10,6 +10,8 @@
 #include <QBrush>
 #include <QLayout>
 #include <settings.h>
+#include <QClipboard>
+#include <QMessageBox>
 namespace Ui {
 class webreceive;
 }
@@ -24,6 +26,7 @@ public:
     ~WebReceive();
 private slots:
     void generateCodeBtnClick();
+    void copyBtnClick();
 
 private:
     Ui::webreceive *ui;

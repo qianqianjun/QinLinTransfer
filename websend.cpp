@@ -16,6 +16,7 @@ WebSend::WebSend(WebServer*& webServer,QWidget *parent) :
     }
     connect(ui->selectFileBtn,&QPushButton::clicked,this,&WebSend::selectFileBtnClicked);
     connect(ui->generateCodeBtn,&QPushButton::clicked,this,&WebSend::generateCodeBtnClicked);
+    connect(ui->copyButton,&QPushButton::clicked,this,&WebSend::copyBtnClicked);
 }
 
 void WebSend::removeOld()
@@ -61,4 +62,19 @@ void WebSend::generateCodeBtnClicked()
     layout->addWidget(qrcodeWidget);
     ui->qrcode_area->setLayout(layout);
     update();
+}
+
+void WebSend::copyBtnClicked()
+{
+
+    if(filePaths.empty()){
+        QMessageBox::critical(this,"错误","请选择文件");
+        return;
+    }
+    removeOld();
+    havaQrcode=true;
+    QString url=webServer->openSender(ui->ip_combox->currentText(),Settings::WebPort(),filePaths);
+    QClipboard *clipboard = QApplication::clipboard();   //获取系统剪贴板指针
+    clipboard->setText(url);
+    QMessageBox::information(this,"提示","地址已复制到剪切板");
 }
