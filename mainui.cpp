@@ -74,8 +74,11 @@ void MainUI::initSettingPage(){
 }
 void MainUI::initWebPage()
 {
-    connect(ui->sendbtn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
-    connect(ui->sendbtn_2,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
+    connect(ui->web_send_btn,&QPushButton::clicked,this,&MainUI::openTransferWindow);
+    connect(ui->web_receive_btn,&QPushButton::clicked,this,&MainUI::openReceiverWindow);
+    ui->web_send_btn->setFocusPolicy(Qt::NoFocus);
+    ui->web_receive_btn->setFocusPolicy(Qt::NoFocus);
+    ui->banner_btn->setFocusPolicy(Qt::NoFocus);
 }
 // 设置界面需要的函数
 bool isInt(const QString& s){
