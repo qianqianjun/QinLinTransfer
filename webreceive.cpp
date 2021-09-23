@@ -3,7 +3,7 @@
 
 WebReceive::WebReceive(WebServer*& webServer,QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::webreceive),havaQrcode(false),webServer(webServer)
+    ui(new Ui::webreceive),havaQrcode(false),Qrcode(false),webServer(webServer)
 {
     ui->setupUi(this);
     this->setWindowModality(Qt::ApplicationModal);
@@ -34,6 +34,7 @@ void WebReceive::generateCodeBtnClick()
 {
     removeOld();
     havaQrcode=true;
+    Qrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
 
@@ -47,8 +48,10 @@ void WebReceive::generateCodeBtnClick()
 
 void WebReceive::copyBtnClick()
 {
-    removeOld();
-    havaQrcode=true;
+    if(!Qrcode){
+        QMessageBox::critical(this,"错误","请先生成二维码");
+        return;
+    }
     QString url=webServer->openReceiver(ui->ips_combox->currentText(),Settings::WebPort());
     QClipboard *clipboard = QApplication::clipboard();   //获取系统剪贴板指针
     clipboard->setText(url);

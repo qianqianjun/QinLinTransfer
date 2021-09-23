@@ -40,6 +40,7 @@ private:
     Ui::websend *ui;
     QStringList filePaths;
     bool havaQrcode;
+    bool Qrcode;
     QrcodeWidget* qrcodeWidget;
     WebServer* webServer;
 };

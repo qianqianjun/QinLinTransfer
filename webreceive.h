@@ -31,6 +31,7 @@ private slots:
 private:
     Ui::webreceive *ui;
     bool havaQrcode;
+    bool Qrcode;
     QrcodeWidget* qrcodeWidget;
     WebServer* webServer;
 };

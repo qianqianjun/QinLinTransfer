@@ -2,7 +2,7 @@
 #include "ui_websend.h"
 WebSend::WebSend(WebServer*& webServer,QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::websend),havaQrcode(false),webServer(webServer)
+    ui(new Ui::websend),havaQrcode(false),Qrcode(false),webServer(webServer)
 {
     ui->setupUi(this);
     this->setWindowModality(Qt::ApplicationModal);
@@ -44,6 +44,9 @@ void WebSend::selectFileBtnClicked()
         ui->lineEdit->setText(str);
         filePaths=paths;
     }
+    Qrcode=false;
+    removeOld();
+    havaQrcode=false;
 }
 
 
@@ -55,6 +58,7 @@ void WebSend::generateCodeBtnClicked()
     }
     removeOld();
     havaQrcode=true;
+    Qrcode=true;
     QVBoxLayout *layout=new QVBoxLayout(this);
     qrcodeWidget=new QrcodeWidget(this);
     QString url=webServer->openSender(ui->ip_combox->currentText(),Settings::WebPort(),filePaths);
@@ -67,12 +71,10 @@ void WebSend::generateCodeBtnClicked()
 void WebSend::copyBtnClicked()
 {
 
-    if(filePaths.empty()){
-        QMessageBox::critical(this,"错误","请选择文件");
+    if(!Qrcode){
+        QMessageBox::critical(this,"错误","请先生成二维码");
         return;
     }
-    removeOld();
-    havaQrcode=true;
     QString url=webServer->openSender(ui->ip_combox->currentText(),Settings::WebPort(),filePaths);
     QClipboard *clipboard = QApplication::clipboard();   //获取系统剪贴板指针
     clipboard->setText(url);
