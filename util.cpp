@@ -129,7 +129,7 @@ void VirtualFile::addFile(QList<QString> parts, int key,FileInfo fileinfo)
         }else{
             // 如果没有创建这个目录，马上创建
             VirtualFile* newDir=new VirtualFile(this,this);
-            newDir->pwd=this->pwd+dirName+QDir::separator();
+            newDir->pwd=this->pwd+dirName+"/";
             dirs.insert(dirName,newDir);
             dirs.value(dirName)->addFile(parts,key,fileinfo);
         }
