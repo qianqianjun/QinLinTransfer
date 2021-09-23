@@ -89,15 +89,16 @@ void Context::handleSocketError()
  */
 SenderContext::SenderContext(QTcpSocket *socket,
                              const QList<QSharedPointer<QFile>>& fileList,
+                             const QList<FileInfo>& fileInfos,
                              QObject *parent):Context(socket,parent),files(fileList){
     connect(socket,&QTcpSocket::bytesWritten,this,&SenderContext::writeByteToSocket);
-    foreach(const QSharedPointer<QFile>& file,files){
-        QString filename = QFileInfo(*file).fileName();
-        quint64 size = static_cast<quint64>(file->size());
+    for(int i=0;i<files.size();i++){
+        QString filename = fileInfos[i].fileName;
+        quint64 size = static_cast<quint64>(files[i]->size());
         totalSize += size;
         transferQueue.push_back({filename, size});
         // 文件读指针移动到开头
-        file->seek(0);
+        files[i]->seek(0);
     }
 }
 
@@ -199,22 +200,24 @@ void ReceiverContext::prepareReceiveNextFile(){
     QString savePath=Settings::downloadPath();
     while(!transferQueue.empty()){
         FileMetadata &fileInfo=transferQueue.front();
-        // 保存文件name加上时间戳，防止文件被覆盖。
-        //QString fileName=savePath+QDir::separator()+fileInfo.filename;
-        QString timestrap=QDateTime::currentDateTime().toString("yyyy-MM-dd-hh.mm.ss_");
-        QString fileName=savePath+QDir::separator() + timestrap+fileInfo.filename;
-
+        QString filePath=savePath+QDir::separator() + dirName+QDir::separator()+fileInfo.filename;
+        // 创建文件所有上级目录
+        QFileInfo info(filePath);
+        QDir dir;
+        dir.mkpath(info.absolutePath());
+        // 设置文件写指针
         if(savingFile){
             savingFile->deleteLater();
             savingFile=nullptr;
         }
-        savingFile=new QFile(fileName,this);
+        savingFile=new QFile(filePath,this);
         if(!savingFile->open(QIODevice::WriteOnly)){
-            emit raiseErrorMsg(QString("无法打开%1，请检查目录权限！").arg(fileName));
+            emit raiseErrorMsg(QString("无法打开%1，请检查目录权限！").arg(filePath));
+            transferQueue.pop_front();
             return;
         }
         if(fileInfo.size>0){
-            emit printLogMsg(QString("正在接收%1……").arg(fileName));
+            emit printLogMsg(QString("正在接收%1……").arg(filePath));
             break;
         }
         transferQueue.pop_front();
@@ -248,6 +251,8 @@ void ReceiverContext::transferFileMetaData(){
 void ReceiverContext::handleReceivedData(const QByteArray &data){
     // 处理并解析发送端传过来的metaData信息。
     if(state==TRANSFER_META){
+        // 设置传送文件夹名称
+        dirName=QDateTime::currentDateTime().toString("yyyy-MM-dd-hh.mm.ss");
         // 这里传送的时候可能会出现问题，要把操作包含在try块中防止程序崩溃
         QString deviceName;
         try {

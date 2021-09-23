@@ -61,6 +61,7 @@ protected:
 public:
     explicit SenderContext(QTcpSocket* socket,
                            const QList<QSharedPointer<QFile>>& fileList,
+                           const QList<FileInfo>& fileInfos,
                            QObject *parent = nullptr);
     void response(bool accept);
 };
@@ -70,6 +71,7 @@ class ReceiverContext:public Context{
     Q_OBJECT
 private:
     QFile* savingFile;
+    QString dirName;
     void prepareReceiveNextFile();
 protected:
     void transferFileMetaData();

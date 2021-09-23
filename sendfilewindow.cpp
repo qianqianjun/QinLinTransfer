@@ -175,7 +175,7 @@ void SendFileWindow::socketTimeout(){
 
 void SendFileWindow::socketConnected(){
     socketTimeoutTimer.stop();
-    SenderContext *sender=new SenderContext(socket,this->manager->files,nullptr);
+    SenderContext *sender=new SenderContext(socket,this->manager->files,this->manager->fileInfos,nullptr);
     ProgressBarUI *progressBar=new ProgressBarUI(sender,nullptr);
     connect(progressBar,&ProgressBarUI::openNextTask,this,&SendFileWindow::sendFile);
     connect(progressBar,&ProgressBarUI::transferInterruptedByUser,this,&SendFileWindow::close);
