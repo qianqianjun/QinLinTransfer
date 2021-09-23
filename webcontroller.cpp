@@ -48,8 +48,7 @@ void HugeFileUploadController::service(HttpRequest &request, HttpResponse &respo
             QString fileName=request.getParameter("filename");
             // 合并文件，完成最后的操作。
             QList<Chunk*> blocks=hostChunks->value(ip)->chunks;
-            QString timestrap=QDateTime::currentDateTime().toString("yyyy-MM-dd-hh.mm.ss_");
-            QString storeName=Settings::downloadPath()+QDir::separator()+timestrap+fileName;
+            QString storeName=Settings::downloadPath()+"/"+fileName;
             QFile* storeFile=new QFile(storeName,this);
             if(storeFile->open(QIODevice::ReadWrite)){
                 for(int i=0;i<blocks.size();i++){
@@ -157,8 +156,7 @@ void FileUploadController::service(HttpRequest &request, HttpResponse &response)
         QTemporaryFile* file=request.getUploadedFile("data");
         QString fileName=request.getParameter("filename");
         if (file){
-            QString timestrap=QDateTime::currentDateTime().toString("yyyy-MM-dd-hh.mm.ss_");
-            QString storeName=Settings::downloadPath()+QDir::separator() + timestrap+fileName;
+            QString storeName=Settings::downloadPath()+"/"+ fileName;
             QFile* storeFile=new QFile(storeName,this);
             if(storeFile->open(QIODevice::WriteOnly)){
                 while (!file->atEnd() && !file->error()){
