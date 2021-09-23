@@ -60,8 +60,13 @@ void MainUI::initialLeftMenu(){
     layout->addWidget(setting);
     ui->menu_widget->setLayout(layout);
 }
+/**
+ * ================================================================================================
+ * @brief MainUI::initSettingPage
+ */
 void MainUI::initSettingPage(){
     ui->set_devicename->setText(Settings::deviceName());
+    ui->set_devicename->setFocusPolicy(Qt::StrongFocus);
     ui->set_download_path->setText(Settings::downloadPath());
     ui->set_discovery_port->setText(QString::number(Settings::DiscoveryPort()));
     ui->set_transfer_port->setText(QString::number(Settings::serverPort()));
