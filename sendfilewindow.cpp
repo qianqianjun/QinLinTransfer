@@ -25,7 +25,11 @@ void SendFileWindow::dropEvent(QDropEvent *event)
 {
     if(event->mimeData()->hasUrls()){
         foreach(const QUrl &url,event->mimeData()->urls()){
-            QFileInfo info(url.toLocalFile());
+            QString path=url.toLocalFile();
+            if(path.endsWith("/")){
+                path.remove(path.size()-1,1);
+            }
+            QFileInfo info(path);
             if(info.isFile()){
                 this->manager->addFile(info.filePath());
             }
