@@ -25,7 +25,11 @@ void SendFileWindow::dropEvent(QDropEvent *event)
 {
     if(event->mimeData()->hasUrls()){
         foreach(const QUrl &url,event->mimeData()->urls()){
-            QFileInfo info(url.toLocalFile());
+            QString path=url.toLocalFile();
+            if(path.endsWith("/")){
+                path.remove(path.size()-1,1);
+            }
+            QFileInfo info(path);
             if(info.isFile()){
                 this->manager->addFile(info.filePath());
             }
@@ -67,9 +71,7 @@ void SendFileWindow::initTargetDevice(){
     }
 }
 
-/**
- * @brief SendFileWindow::initSelectedFileArea
- */
+
 void SendFileWindow::initSelectedFileArea(){
     ui->files_table->setSelectionBehavior ( QAbstractItemView::SelectRows); //设置选择行为，以行为单位
     ui->files_table->setSelectionMode ( QAbstractItemView::SingleSelection); //设置选择模式，选择单行
@@ -77,6 +79,7 @@ void SendFileWindow::initSelectedFileArea(){
     ui->files_table->setColumnCount(2);
     ui->files_table->setHorizontalHeaderLabels(QStringList()<<"文件名称"<<"文件大小");
     ui->files_table->horizontalHeader()->setStretchLastSection(true);
+    ui->files_table->horizontalHeader()->setMinimumWidth(185);
     ui->files_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     connect(ui->files_table,&QTableWidget::cellClicked,this->manager,&SendFileManager::changeIndex);
     connect(ui->remove_btn,&QPushButton::clicked,[=](){
@@ -114,21 +117,7 @@ void SendFileWindow::initSelectedFileArea(){
 
     connect(ui->manage_btn,&QPushButton::clicked,this,&SendFileWindow::openManageWindow);
 }
-/**
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- * @brief SendFileWindow::openManageWindow
- */
+
 void SendFileWindow::openManageWindow(){
     ManageWindow* window=new ManageWindow(this->manager->fileInfos,this);
     window->show();
@@ -226,7 +215,10 @@ QString parseSize(qint64 size){
         i++;
         capacity/=1024;
     }
-    return QString("%1%2").arg(QString::number(capacity,'g',2)).arg(units[i]);
+    if(static_cast<int>(capacity)==capacity){
+        return QString("%1%2").arg(QString::number(static_cast<int>(capacity))).arg(units[i]);
+    }
+    return QString("%1%2").arg(QString::number(capacity,'f',2)).arg(units[i]);
 }
 void SendFileManager::addFile(const QString &filepath,QString root){
     // 检查是否已经在队列中了

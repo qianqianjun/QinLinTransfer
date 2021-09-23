@@ -10,5 +10,8 @@
         <file>icons/up.png</file>
         <file>icons/file.png</file>
         <file>icons/dir.png</file>
+        <file>icons/web_send.png</file>
+        <file>icons/web_receive.png</file>
+        <file>icons/banner.png</file>
     </qresource>
 </RCC>

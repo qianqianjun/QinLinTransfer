@@ -8,7 +8,7 @@ QString Settings::deviceName()
 QString Settings::downloadPath()
 {
     QString d = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
-    d += QDir::separator() + QApplication::applicationName();
+    d += "/" + QApplication::applicationName();
     return QSettings().value("downloadPath", d).toString();
 }
 
